@@ -1,0 +1,34 @@
+@model agancywebProject.Models.DB.Booking
+
+@{
+    ViewData["Title"] = Lang.T(Context, "حذف رزرو هتل", "Delete hotel booking");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "حذف رزرو هتل", "Delete hotel booking")</h2>
+        <p>@Lang.T(Context, "آیا از حذف این رزرو مطمئن هستید؟ این کار قابل بازگشت نیست.", "Are you sure you want to delete this booking? This cannot be undone.")</p>
+    </div>
+    <div class="table-wrap admin-form-wrap">
+        @if (Model.Status == agancywebProject.Models.DB.BookingStatus.Paid)
+        {
+            <div class="alert alert-warning">@Lang.T(Context, "توجه: این رزرو پرداخت‌شده است. با حذف آن، بازه مربوطه دوباره برای رزرو آزاد می‌شود.", "Note: this booking is paid. Deleting it frees the dates again.")</div>
+        }
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "هتل", "Hotel")</dt>
+            <dd>@Model.Hotel?.name — @Model.Hotel?.city</dd>
+            <dt>@Lang.T(Context, "بازه اقامت", "Stay")</dt>
+            <dd>@Model.CheckIn.ToString("yyyy-MM-dd") → @Model.CheckOut.ToString("yyyy-MM-dd") (@Model.Nights @Lang.T(Context, "شب", "nights"))</dd>
+            <dt>@Lang.T(Context, "مسافر", "Guest")</dt>
+            <dd>@Model.FullName — @Model.PhoneNumber</dd>
+            <dt>@Lang.T(Context, "مبلغ کل (تومان)", "Total (Toman)")</dt>
+            <dd>@Model.TotalPrice.ToString("N0")</dd>
+        </dl>
+
+        <form asp-action="DeleteHotelConfirmed" class="admin-form-actions mt-3">
+            <input type="hidden" name="id" value="@Model.Booking_Id" />
+            <input type="submit" value="@Lang.T(Context, "بله، حذف شود", "Yes, delete it")" class="btn btn-danger" formmethod="post" />
+            <a asp-action="Index" asp-route-type="hotel" class="admin-back-link">→ @Lang.T(Context, "انصراف و بازگشت", "Cancel and go back")</a>
+        </form>
+    </div>
+</div>

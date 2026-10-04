@@ -1,0 +1,71 @@
+@model agancywebProject.Models.DB.FlightBooking
+@using agancywebProject.Models.DB
+
+@{
+    ViewData["Title"] = Lang.T(Context, "ویرایش رزرو پرواز", "Edit flight booking");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "ویرایش رزرو پرواز", "Edit flight booking")</h2>
+        <p>@Model.Flight?.Origin → @Model.Flight?.distination — @Lang.T(Context, "رزرو شماره", "Booking #") @Model.FlightBooking_Id</p>
+    </div>
+
+    <div class="table-wrap admin-form-wrap">
+        <form asp-action="EditFlight" asp-route-id="@Model.FlightBooking_Id" class="row g-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger col-12"></div>
+            <input type="hidden" asp-for="FlightBooking_Id" />
+
+            <div class="col-md-6">
+                <label asp-for="FullName" class="form-label">@Lang.T(Context, "نام و نام خانوادگی", "Full name")</label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber" class="form-label">@Lang.T(Context, "شماره موبایل", "Mobile number")</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="SeatCount" class="form-label">@Lang.T(Context, "تعداد صندلی", "Seats")</label>
+                <input asp-for="SeatCount" class="form-control" type="number" min="1" max="50" />
+                <span asp-validation-for="SeatCount" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Status" class="form-label">@Lang.T(Context, "وضعیت", "Status")</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="@((int)BookingStatus.Pending)" selected="@(Model.Status == BookingStatus.Pending)">@Lang.T(Context, "در انتظار پرداخت", "Awaiting payment")</option>
+                    <option value="@((int)BookingStatus.Paid)" selected="@(Model.Status == BookingStatus.Paid)">@Lang.T(Context, "پرداخت‌شده", "Paid")</option>
+                    <option value="@((int)BookingStatus.Failed)" selected="@(Model.Status == BookingStatus.Failed)">@Lang.T(Context, "ناموفق", "Failed")</option>
+                    <option value="@((int)BookingStatus.Cancelled)" selected="@(Model.Status == BookingStatus.Cancelled)">@Lang.T(Context, "لغو شده", "Cancelled")</option>
+                    @if (Model.Status == BookingStatus.Locked)
+                    {
+                        <option value="@((int)BookingStatus.Locked)" selected="selected">@Lang.T(Context, "در حال پرداخت", "Payment in progress")</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="TotalPrice" class="form-label">@Lang.T(Context, "مبلغ کل (تومان)", "Total (Toman)")</label>
+                <input asp-for="TotalPrice" class="form-control" type="number" min="0" />
+                <span asp-validation-for="TotalPrice" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <div class="form-text-hint">@Lang.T(Context, "اگر تعداد صندلی را تغییر دهید و مبلغ را دست نزنید، مبلغ خودکار (قیمت هر صندلی × تعداد) محاسبه می‌شود.", "If you change the seat count and leave the price untouched, it is recalculated automatically (seat price × seats).")</div>
+            </div>
+            <div class="col-12">
+                <label asp-for="Note" class="form-label">@Lang.T(Context, "توضیحات / درخواست خاص", "Notes / special requests")</label>
+                <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 admin-form-actions">
+                <button type="submit" class="btn btn-brand">@Lang.T(Context, "ذخیره تغییرات", "Save changes")</button>
+                <a asp-action="Index" asp-route-type="flight" class="admin-back-link">→ @Lang.T(Context, "انصراف و بازگشت", "Cancel and go back")</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

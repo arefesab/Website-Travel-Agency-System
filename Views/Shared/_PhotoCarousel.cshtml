@@ -1,0 +1,37 @@
+@model string[]
+@{
+    var alt = ViewData["Alt"] as string ?? string.Empty;
+    var urls = Model ?? Array.Empty<string>();
+    var multi = urls.Length > 1;
+    var noPhotoText = Lang.T(Context, "بدون عکس", "No photo");
+}
+@if (urls.Length > 0)
+{
+    <div class="photo-carousel" dir="ltr" data-carousel tabindex="0" aria-roledescription="carousel" aria-label="@alt">
+        <div class="pc-viewport">
+            <div class="pc-track">
+                @foreach (var url in urls)
+                {
+                    <div class="pc-slide">
+                        <img class="hotel-photo pc-img" data-zoom data-nophoto-text="@noPhotoText" src="@url" alt="@alt" loading="lazy" draggable="false" />
+                    </div>
+                }
+            </div>
+        </div>
+        @if (multi)
+        {
+            <button type="button" class="pc-btn pc-prev" aria-label="@Lang.T(Context, "عکس قبلی", "Previous photo")">&#8249;</button>
+            <button type="button" class="pc-btn pc-next" aria-label="@Lang.T(Context, "عکس بعدی", "Next photo")">&#8250;</button>
+            <div class="pc-counter" aria-live="polite">1 / @urls.Length</div>
+        }
+        @if (multi)
+        {
+            <div class="pc-thumbs">
+                @for (var i = 0; i < urls.Length; i++)
+                {
+                    <button type="button" class="pc-thumb@(i == 0 ? " is-active" : "")" data-index="@i" aria-label="@Lang.T(Context, "عکس", "Photo") @(i + 1)"><img src="@urls[i]" alt="" loading="lazy" draggable="false" /></button>
+                }
+            </div>
+        }
+    </div>
+}

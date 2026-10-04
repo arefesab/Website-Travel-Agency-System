@@ -1,0 +1,102 @@
+﻿@model IEnumerable<agancywebProject.Models.DB.Flight>
+
+@{
+    ViewData["Title"] = Lang.T(Context, "لیست پرواز‌ها", "Flights");
+    var bookedSeats = (Dictionary<int, int>)(ViewBag.BookedSeats ?? new Dictionary<int, int>());
+}
+
+<div class="page-container">
+    @if (TempData["AdminError"] is string adminError && !string.IsNullOrWhiteSpace(adminError))
+    {
+        <div class="alert alert-danger">@adminError</div>
+    }
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">@Lang.T(Context, "لیست پرواز‌ها", "Flights")</h1>
+        <a asp-action="Create" class="btn btn-brand">+ @Lang.T(Context, "پرواز جدید", "New flight")</a>
+    </div>
+    <div class="table-wrap">
+        <div class="table-responsive">
+            <table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Lang.T(Context, "مبدا", "Origin")
+            </th>
+            <th>
+                @Lang.T(Context, "مقصد", "Destination")
+            </th>
+            <th>
+                @Lang.T(Context, "تاریخ رفت", "Departure date")
+            </th>
+            <th>
+                @Lang.T(Context, "قیمت", "Price")
+            </th>
+            <th>
+                @Lang.T(Context, "ظرفیت", "Capacity")
+            </th>
+            <th>
+                @Lang.T(Context, "ساعت رفت", "Departure time")
+            </th>
+            <th>
+                @Lang.T(Context, "کلاس پرواز", "Flight class")
+            </th>
+            <th>
+                @Lang.T(Context, "وضعیت رزرو", "Booking status")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        var booked = bookedSeats.TryGetValue(item.Flight_Id, out var s) ? s : 0;
+        var remaining = item.capacity - booked;
+        <tr>
+            <td>
+                @Lang.Fin(Context, item.Origin)
+            </td>
+            <td>
+                @Lang.Fin(Context, item.distination)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.startdate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.capacity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.entrytime)
+            </td>
+            <td>
+                @Lang.FlightClass(Context, item.flightClass)
+            </td>
+            <td>
+                @if (remaining <= 0)
+                {
+                    <a asp-action="Details" asp-route-id="@item.Flight_Id" asp-fragment="bookings" class="status-pill status-pill-failed status-pill-link" title="@Lang.T(Context, "مشاهده لیست رزروها", "View bookings")">@Lang.T(Context, "تکمیل", "Sold out")</a>
+                }
+                else if (booked > 0)
+                {
+                    <a asp-action="Details" asp-route-id="@item.Flight_Id" asp-fragment="bookings" class="status-pill status-pill-paid status-pill-link" title="@Lang.T(Context, "مشاهده لیست رزروها", "View bookings")">@booked @Lang.T(Context, "از", "of") @item.capacity @Lang.T(Context, "رزرو", "booked")</a>
+                }
+                else
+                {
+                    <a asp-action="Details" asp-route-id="@item.Flight_Id" asp-fragment="bookings" class="status-pill status-pill-pending status-pill-link" title="@Lang.T(Context, "مشاهده لیست رزروها", "View bookings")">@Lang.T(Context, "بدون رزرو", "No bookings")</a>
+                }
+            </td>
+            <td class="row-actions-cell">
+            <div class="row-actions">
+                <a asp-action="Edit" asp-route-id="@item.Flight_Id">@Lang.T(Context, "ویرایش", "Edit")</a>
+                <a asp-action="Details" asp-route-id="@item.Flight_Id">@Lang.T(Context, "جزئیات", "Details")</a>
+                <a asp-action="Delete" asp-route-id="@item.Flight_Id">@Lang.T(Context, "حذف", "Delete")</a>
+            </div>
+        </td>
+        </tr>
+}
+    </tbody>
+</table>
+        </div>
+    </div>
+</div>

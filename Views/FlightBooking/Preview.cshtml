@@ -1,0 +1,98 @@
+﻿@model agancywebProject.Models.DB.FlightBooking
+@{
+    var flight = Model.Flight!;
+    ViewData["Title"] = Lang.T(Context, "پیش‌نمایش رزرو پرواز", "Flight booking preview");
+}
+
+<div class="page-container">
+    <div class="tour-breadcrumb hotel-breadcrumb">
+        <a asp-controller="Flightsshow" asp-action="Index">@Lang.T(Context, "لیست پروازها", "Flights")</a>
+        <span>›</span>
+        @Lang.T(Context, "پیش‌نمایش سفارش", "Order preview")
+    </div>
+
+    <div class="section-heading" style="margin-top:1rem;">
+        <h2>@Lang.T(Context, "پیش‌نمایش سفارش", "Order preview")</h2>
+        <p>@Lang.T(Context, "لطفا قبل از پرداخت، اطلاعات زیر را بررسی کنید", "Please review the details below before paying")</p>
+    </div>
+
+    <div class="booking-steps">
+        <div class="booking-step is-done">
+            <div class="booking-step-circle">✓</div>
+            <div class="booking-step-label">@Lang.T(Context, "اطلاعات رزرو", "Booking info")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step is-active">
+            <div class="booking-step-circle">@Lang.T(Context, "۲", "2")</div>
+            <div class="booking-step-label">@Lang.T(Context, "پیش‌نمایش", "Preview")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۳", "3")</div>
+            <div class="booking-step-label">@Lang.T(Context, "پرداخت", "Payment")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۴", "4")</div>
+            <div class="booking-step-label">@Lang.T(Context, "نتیجه", "Result")</div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(ViewBag.Error as string))
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    <div class="table-wrap booking-summary-card mb-3">
+        <h3>@Lang.T(Context, "مشخصات پرواز", "Flight details")</h3>
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "مسیر", "Route")</dt>
+            <dd>@Lang.Fin(Context, flight.Origin) — @Lang.Fin(Context, flight.distination)</dd>
+            <dt>@Lang.T(Context, "تاریخ رفت", "Departure date")</dt>
+            <dd>@Lang.Num(Context, flight.startdate.ToString("yyyy-MM-dd"))</dd>
+            <dt>@Lang.T(Context, "ساعت رفت", "Departure time")</dt>
+            <dd>@Lang.Num(Context, flight.entrytime.ToString("HH:mm"))</dd>
+            <dt>@Lang.T(Context, "کلاس پرواز", "Flight class")</dt>
+            <dd>@Lang.FlightClass(Context, flight.flightClass)</dd>
+        </dl>
+    </div>
+
+    <div class="table-wrap booking-summary-card mb-3">
+        <h3>@Lang.T(Context, "مشخصات شما", "Your details")</h3>
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "نام و نام خانوادگی", "Full name")</dt>
+            <dd>@Model.FullName</dd>
+            <dt>@Lang.T(Context, "شماره موبایل", "Phone number")</dt>
+            <dd dir="ltr">@Model.PhoneNumber</dd>
+            @if (!string.IsNullOrWhiteSpace(Model.Note))
+            {
+                <dt>@Lang.T(Context, "توضیحات / درخواست خاص", "Notes / special request")</dt>
+                <dd>@Model.Note</dd>
+            }
+        </dl>
+    </div>
+
+    <div class="table-wrap booking-summary-card mb-3">
+        <h3>@Lang.T(Context, "مبلغ قابل پرداخت", "Amount due")</h3>
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "تعداد صندلی", "Seat count")</dt>
+            <dd>@Model.SeatCount @Lang.T(Context, "صندلی", "seats")</dd>
+            <dt>@Lang.T(Context, "قیمت هر صندلی", "Price per seat")</dt>
+            <dd>@flight.price.ToString("N0") @Lang.T(Context, "تومان", "Toman")</dd>
+            <dt>@Lang.T(Context, "مبلغ کل", "Total amount")</dt>
+            <dd><strong class="booking-total">@Model.TotalPrice.ToString("N0") @Lang.T(Context, "تومان", "Toman")</strong></dd>
+        </dl>
+    </div>
+
+    <div class="table-wrap admin-form-wrap">
+        <div class="admin-form-actions">
+            <form asp-action="Pay" asp-route-id="@Model.FlightBooking_Id" method="post" class="d-inline">
+                <input type="submit" value="@Lang.T(Context, "پرداخت و تایید نهایی", "Pay & confirm")" class="btn btn-brand" />
+            </form>
+            <form asp-action="Cancel" asp-route-id="@Model.FlightBooking_Id" method="post" class="d-inline">
+                <input type="submit" value="@Lang.T(Context, "انصراف", "Cancel")" class="btn btn-outline-secondary" />
+            </form>
+        </div>
+        <p class="form-text-hint mt-2">@Lang.T(Context, "با کلیک روی «پرداخت و تایید نهایی» به درگاه پرداخت بانکی منتقل می‌شوید. تا زمانی که پرداخت را تکمیل نکنید، این صندلی‌ها قطعی نمی‌شوند.", "Clicking &quot;Pay &amp; confirm&quot; will take you to the payment gateway. These seats are not confirmed until payment is completed.")</p>
+    </div>
+</div>

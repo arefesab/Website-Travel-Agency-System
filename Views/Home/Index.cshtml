@@ -1,0 +1,475 @@
+﻿@{
+    ViewData["Title"] = agancywebProject.Helpers.Lang.T(Context, "صفحه اصلی", "Home");
+    var lastMinuteHotels = ViewBag.LastMinuteHotels as IEnumerable<agancywebProject.Models.DB.Hotel>;
+    var lastMinuteFlights = ViewBag.LastMinuteFlights as IEnumerable<agancywebProject.Models.DB.Flight>;
+}
+
+<section class="hero">
+    <img class="hero-photo" src="~/folder/css/airplane-hero-3840.jpg" alt="" fetchpriority="high" />
+    <div class="container hero-content">
+        <h1>@Lang.T(Context, "برای سفرهایی فراتر از معمول", "For journeys beyond the ordinary")</h1>
+        <p>@Lang.T(Context, "بهترین قیمت بلیط هواپیما و رزرو هتل، با پشتیبانی ۲۴ ساعته و امکان کنسلی آسان", "Best prices on flights and hotels, with 24/7 support and easy cancellation")</p>
+    </div>
+</section>
+
+<section class="container search-section">
+    <div class="search-widget">
+        <div class="search-tabs" role="tablist">
+            <button type="button" class="search-tab is-active" data-target="#panel-flight" role="tab">@Lang.T(Context, "جستجوی پرواز", "Search Flights")</button>
+            <button type="button" class="search-tab" data-target="#panel-hotel" role="tab">@Lang.T(Context, "جستجوی هتل", "Search Hotels")</button>
+        </div>
+
+        <div id="panel-flight" class="search-panel is-active">
+            <form asp-controller="Flightsshow" asp-action="Index" method="get">
+                <label class="switch-row mb-3" for="home-fs-roundtrip">
+                    <span class="switch">
+                        <input type="checkbox" id="home-fs-roundtrip" name="tripType" value="roundtrip" />
+                        <span class="slider"></span>
+                    </span>
+                    <span class="switch-label-text">@Lang.T(Context, "پرواز رفت و برگشت می‌خواهم", "I want a round-trip flight")</span>
+                </label>
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label" for="flight-origin">@Lang.T(Context, "مبدا پرواز", "Origin")</label>
+                        <select id="flight-origin" name="origin" class="form-select">
+                            <option value="">@Lang.T(Context, "همه مبدا‌ها", "All origins")</option>
+                            @foreach (var originCity in (ViewBag.FlightOrigins as List<string>) ?? new List<string>())
+                            {
+                                <option value="@originCity">@Lang.Fin(Context, originCity)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label" for="flight-destination">@Lang.T(Context, "مقصد پرواز", "Destination")</label>
+                        <select id="flight-destination" name="destination" class="form-select">
+                            <option value="">@Lang.T(Context, "همه مقصدها", "All destinations")</option>
+                            @foreach (var destCity in (ViewBag.FlightDestinations as List<string>) ?? new List<string>())
+                            {
+                                <option value="@destCity">@Lang.Fin(Context, destCity)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label" for="flight-date">@Lang.T(Context, "تاریخ رفت", "Departure date") <span class="text-danger">*</span></label>
+                        <input id="flight-date" type="date" name="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-md-4 col-lg" id="home-fs-returndate-wrap" style="display:none;">
+                        <label class="form-label" for="flight-return">@Lang.T(Context, "تاریخ برگشت", "Return date") <span class="text-danger">*</span></label>
+                        <input id="flight-return" type="date" name="returnDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label" for="flight-passengers">@Lang.T(Context, "تعداد مسافر", "Passengers")</label>
+                        <input id="flight-passengers" type="number" min="1" value="1" name="passengers" class="form-control" />
+                    </div>
+                </div>
+                <p class="search-hint">@Lang.T(Context, "برای جستجو وارد کردن تاریخ رفت الزامی است.", "A departure date is required to search.")</p>
+                <button type="submit" class="btn btn-brand search-submit">@Lang.T(Context, "جستجوی پرواز", "Search Flights")</button>
+            </form>
+        </div>
+
+        <div id="panel-hotel" class="search-panel">
+            <form asp-controller="Hotelsshow" asp-action="Index" method="get">
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label" for="hotel-city">@Lang.T(Context, "مقصد", "Destination")</label>
+                        <select id="hotel-city" name="city" class="form-select">
+                            <option value="">@Lang.T(Context, "همه شهرها", "All cities")</option>
+                            <option value="تهران">@Lang.T(Context, "تهران", "Tehran")</option>
+                            <option value="اهواز">@Lang.T(Context, "اهواز", "Ahvaz")</option>
+                            <option value="اصفهان">@Lang.T(Context, "اصفهان", "Isfahan")</option>
+                            <option value="بندرعباس">@Lang.T(Context, "بندرعباس", "Bandar Abbas")</option>
+                            <option value="مشهد">@Lang.T(Context, "مشهد", "Mashhad")</option>
+                            <option value="شیراز">@Lang.T(Context, "شیراز", "Shiraz")</option>
+                            <option value="کرمان">@Lang.T(Context, "کرمان", "Kerman")</option>
+                            <option value="عسلویه">@Lang.T(Context, "عسلویه", "Asaluyeh")</option>
+                            <option value="کیش">@Lang.T(Context, "کیش", "Kish")</option>
+                            <option value="تبریز">@Lang.T(Context, "تبریز", "Tabriz")</option>
+                            <option value="قشم">@Lang.T(Context, "قشم", "Qeshm")</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <label class="form-label" for="hotel-checkin">@Lang.T(Context, "تاریخ ورود", "Check-in") <span class="text-danger">*</span></label>
+                        <input id="hotel-checkin" type="date" name="checkin" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <label class="form-label" for="hotel-checkout">@Lang.T(Context, "تاریخ خروج", "Check-out")</label>
+                        <input id="hotel-checkout" type="date" name="checkout" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+                <p class="search-hint">@Lang.T(Context, "برای جستجو وارد کردن تاریخ ورود الزامی است.", "A check-in date is required to search.")</p>
+                <button type="submit" class="btn btn-brand search-submit">@Lang.T(Context, "جستجوی هتل", "Search Hotels")</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="container board-section">
+    <div class="section-heading section-heading-row">
+        <div>
+            <h2>@Lang.T(Context, "پرواز‌های لحظه‌آخری", "Last-Minute Flights")</h2>
+            <p>@Lang.T(Context, "بلیط پروازهای نزدیک، با بهترین قیمت موجود", "Tickets for upcoming flights, at the best available price")</p>
+        </div>
+        <a class="link-more" asp-controller="Flightsshow" asp-action="Index">@Lang.T(Context, "همه پروازها", "All flights")</a>
+    </div>
+    @* DYN:flights *@
+    @if (lastMinuteFlights != null && lastMinuteFlights.Any())
+    {
+        <table class="board" data-board>
+            <thead>
+                <tr>
+                    <th>@Lang.T(Context, "ساعت", "Time")</th>
+                    <th>@Lang.T(Context, "مسیر", "Route")</th>
+                    <th>@Lang.T(Context, "تاریخ رفت", "Departure")</th>
+                    <th>@Lang.T(Context, "کلاس", "Class")</th>
+                    <th>@Lang.T(Context, "زمان باقی‌مانده", "Time left")</th>
+                    <th>@Lang.T(Context, "قیمت هر نفر", "Price per person")</th>
+                    <th><span class="visually-hidden">@Lang.T(Context, "رزرو", "Book")</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ var rowIndex = 0; }
+                @foreach (var flight in lastMinuteFlights)
+                {
+                    var flightDaysLeft = (flight.startdate.Date - DateTime.Today).Days;
+                    <tr style="--i:@(rowIndex++)">
+                        <td class="b-time" dir="ltr">
+                            @foreach (var ch in flight.entrytime.ToString("HH:mm"))
+                            {
+                                <span class="@(ch == ':' ? "flap-sep" : "flap")">@ch</span>
+                            }
+                        </td>
+                        <td class="b-route">
+                            <span>@Lang.Fin(Context, flight.Origin)</span>
+                            <svg class="route-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6"/></svg>
+                            <span>@Lang.Fin(Context, flight.distination)</span>
+                        </td>
+                        <td class="b-date" dir="ltr">@flight.startdate.ToString("yyyy-MM-dd")</td>
+                        <td class="b-class">@Lang.FlightClass(Context, flight.flightClass)</td>
+                        <td class="b-left"><span class="@(flightDaysLeft <= 0 ? "board-chip board-chip-hot" : "board-chip")">@(flightDaysLeft <= 0 ? Lang.T(Context, "پرواز امروز", "Flight today") : Lang.T(Context, $"{flightDaysLeft} روز تا پرواز", $"{flightDaysLeft} days to flight"))</span></td>
+                        <td class="b-price"><strong>@flight.price.ToString("N0")</strong> <small>@Lang.T(Context, "تومان", "Toman")</small></td>
+                        <td class="b-act"><a asp-controller="FlightBooking" asp-action="Reserve" asp-route-id="@flight.Flight_Id" class="btn btn-brand btn-sm">@Lang.T(Context, "رزرو", "Book")</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <p>@Lang.T(Context, "در حال حاضر آفر لحظه‌آخری پروازی ثبت نشده است.", "No last-minute flight deals are available right now.")</p>
+        </div>
+    }
+    @* /DYN *@
+</section>
+
+<section class="container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "هتل‌های پرتخفیف، با قیمت ویژه", "Hot Hotel Deals")</h2>
+        <p>@Lang.T(Context, "اتاق‌های خالی با تخفیف‌هایی که زود تمام می‌شوند؛ پیش از پر شدن ظرفیت رزرو کنید", "Vacant rooms at prices that won't last — book before they're gone")</p>
+    </div>
+    @* DYN:hotels *@
+    @if (lastMinuteHotels != null && lastMinuteHotels.Any())
+    {
+        <div class="hot-grid">
+            @foreach (var hotel in lastMinuteHotels)
+            {
+                var hotelPhotos = (hotel.photoUrls ?? string.Empty)
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(p => Url.Content(p))
+                .ToArray();
+                var hotelMainPhoto = hotelPhotos.Length > 0 ? hotelPhotos[0] : null;
+                var hotelDealEnd = hotel.finishdate;
+                (ViewBag.HotelDealEnds as Dictionary<int, DateTime>)?.TryGetValue(hotel.Hotel_Id, out hotelDealEnd);
+                var hotelDaysLeft = (hotelDealEnd.Date - DateTime.Today).Days;
+                int pct = 0;
+                (ViewBag.HotelDiscounts as Dictionary<int, int>)?.TryGetValue(hotel.Hotel_Id, out pct);
+                <a asp-controller="Hotelsshow" asp-action="Details" asp-route-id="@hotel.Hotel_Id" class="hot-card">
+                    <div class="hot-media">
+                        @if (hotelMainPhoto != null)
+                        {
+                            <img class="hotel-photo" src="@hotelMainPhoto" alt="@Lang.Fin(Context, hotel.name)" loading="lazy" data-nophoto-text="@Lang.T(Context, "بدون عکس", "No photo")" />
+                        }
+                        else
+                        {
+                            <partial name="_NoPhoto" />
+                        }
+                        @if (pct > 0) { <span class="hot-off">@pct%<small>@Lang.T(Context, "تخفیف", "OFF")</small></span> }
+                        <span class="hot-time@(hotelDaysLeft <= 1 ? " is-urgent" : "")">@(hotelDaysLeft <= 0 ? Lang.T(Context, "آخرین فرصت امروز", "Last chance today") : hotelDaysLeft == 1 ? Lang.T(Context, "فقط تا فردا", "Until tomorrow") : Lang.T(Context, $"{hotelDaysLeft} روز تا پایان", $"{hotelDaysLeft} days left"))</span>
+                    </div>
+                    <div class="hot-body">
+                        <div class="hot-head">
+                            <h3 class="hot-title">@Lang.Fin(Context, hotel.name)</h3>
+                            @if (!string.IsNullOrWhiteSpace(hotel.roomName)) { <p class="hot-room">@Lang.T(Context, "اتاق", "Room"): @Lang.Fin(Context, hotel.roomName)</p> }
+                            <p class="hot-meta"><span>@Lang.Fin(Context, hotel.city)</span>@if (hotel.star > 0)
+                                {
+                                    <span class="hot-stars" aria-label="@hotel.star @Lang.T(Context, "ستاره", "stars")">@(new string('★', Math.Min(hotel.star, 5)))</span>
+                                }</p>
+                        </div>
+                        <div class="hot-foot">
+                            <div class="hot-price">
+                                @if (pct > 0) { <s>@hotel.price.ToString("N0")</s> }
+                                <strong>@HotelPricing.Apply(hotel.price, pct).ToString("N0")</strong>
+                                <small>@Lang.T(Context, "تومان / شب", "Toman / night")</small>
+                            </div>
+                            <span class="hot-cta">@Lang.T(Context, "مشاهده و رزرو", "View & book")<i aria-hidden="true">&larr;</i></span>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <p>@Lang.T(Context, "در حال حاضر آفر لحظه‌آخری هتلی ثبت نشده است.", "No last-minute hotel deals are available right now.")</p>
+        </div>
+    }
+    @* /DYN *@
+</section>
+
+@*<section class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+        <div class="marquee-group"><span>@Lang.T(Context, "استانبول", "Istanbul")</span><i>✦</i><span>@Lang.T(Context, "پاریس", "Paris")</span><i>✦</i><span>@Lang.T(Context, "دبی", "Dubai")</span><i>✦</i><span>@Lang.T(Context, "مالدیو", "Maldives")</span><i>✦</i><span>@Lang.T(Context, "لندن", "London")</span><i>✦</i><span>@Lang.T(Context, "کیش", "Kish")</span><i>✦</i><span>@Lang.T(Context, "شیراز", "Shiraz")</span><i>✦</i><span>@Lang.T(Context, "قشم", "Qeshm")</span><i>✦</i><span>@Lang.T(Context, "تورنتو", "Toronto")</span><i>✦</i><span>@Lang.T(Context, "وین", "Vienna")</span><i>✦</i><span>@Lang.T(Context, "میلان", "Milan")</span><i>✦</i><span>@Lang.T(Context, "مادرید", "Madrid")</span><i>✦</i></div>
+        <div class="marquee-group"><span>@Lang.T(Context, "استانبول", "Istanbul")</span><i>✦</i><span>@Lang.T(Context, "پاریس", "Paris")</span><i>✦</i><span>@Lang.T(Context, "دبی", "Dubai")</span><i>✦</i><span>@Lang.T(Context, "مالدیو", "Maldives")</span><i>✦</i><span>@Lang.T(Context, "لندن", "London")</span><i>✦</i><span>@Lang.T(Context, "کیش", "Kish")</span><i>✦</i><span>@Lang.T(Context, "شیراز", "Shiraz")</span><i>✦</i><span>@Lang.T(Context, "قشم", "Qeshm")</span><i>✦</i><span>@Lang.T(Context, "تورنتو", "Toronto")</span><i>✦</i><span>@Lang.T(Context, "وین", "Vienna")</span><i>✦</i><span>@Lang.T(Context, "میلان", "Milan")</span><i>✦</i><span>@Lang.T(Context, "مادرید", "Madrid")</span><i>✦</i></div>
+    </div>
+</section>*@
+
+
+<section class="container">
+    <div class="section-heading section-heading-row">
+        <div>
+            <h2>@Lang.T(Context, "مقصدهای پیشنهادی", "Suggested Destinations")</h2>
+            <p>@Lang.T(Context, "محبوب‌ترین تورهای داخلی و خارجی این فصل", "This season's most popular domestic & international tours")</p>
+        </div>
+        <div class="filter-pills">
+            <button type="button" class="filter-pill is-active" data-filter="all">@Lang.T(Context, "همه", "All")</button>
+            <button type="button" class="filter-pill" data-filter="domestic">@Lang.T(Context, "داخلی", "Domestic")</button>
+            <button type="button" class="filter-pill" data-filter="international">@Lang.T(Context, "خارجی", "International")</button>
+        </div>
+    </div>
+    <div class="dest-grid">
+            <a asp-controller="Home" asp-action="Kish" class="dest-card" data-destination-type="international">
+                <img src="~/folder/css/10.jpg" alt="@Lang.T(Context, "تور مالدیو", "Maldives Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۹", "4.9")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور مالدیو", "Maldives Tour")</span><span class="dest-price">@Lang.T(Context, "از ۴۲ میلیون تومان", "From 42M Toman")</span></span>
+            </a>
+            <a asp-controller="Home" asp-action="French" class="dest-card" data-destination-type="international">
+                <img src="~/folder/css/2.jpeg" alt="@Lang.T(Context, "تور فرانسه", "France Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۸", "4.8")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور فرانسه", "France Tour")</span><span class="dest-price">@Lang.T(Context, "از ۵۵ میلیون تومان", "From 55M Toman")</span></span>
+            </a>
+            <a asp-controller="Home" asp-action="Turkey" class="dest-card" data-destination-type="international">
+                <img src="~/folder/css/4.jpg" alt="@Lang.T(Context, "تور ترکیه", "Turkey Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۶", "4.6")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور ترکیه", "Turkey Tour")</span><span class="dest-price">@Lang.T(Context, "از ۱۸ میلیون تومان", "From 18M Toman")</span></span>
+            </a>
+            <a asp-controller="Home" asp-action="Russia" class="dest-card" data-destination-type="international">
+                <img src="~/folder/css/5.jpg" alt="@Lang.T(Context, "تور روسیه", "Russia Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۵", "4.5")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور روسیه", "Russia Tour")</span><span class="dest-price">@Lang.T(Context, "از ۲۹ میلیون تومان", "From 29M Toman")</span></span>
+            </a>
+            <a asp-controller="Home" asp-action="Shiraz" class="dest-card" data-destination-type="domestic">
+                <img src="~/folder/css/6.jpg" alt="@Lang.T(Context, "تور شیراز", "Shiraz Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۹", "4.9")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور شیراز", "Shiraz Tour")</span><span class="dest-price">@Lang.T(Context, "از ۴.۵ میلیون تومان", "From 4.5M Toman")</span></span>
+            </a>
+            <a asp-controller="Home" asp-action="Qeshm" class="dest-card" data-destination-type="domestic">
+                <img src="~/folder/css/7.jpg" alt="@Lang.T(Context, "تور قشم", "Qeshm Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۴", "4.4")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور قشم", "Qeshm Tour")</span><span class="dest-price">@Lang.T(Context, "از ۳.۲ میلیون تومان", "From 3.2M Toman")</span></span>
+            </a>
+            <a asp-controller="Home" asp-action="Maldio" class="dest-card" data-destination-type="domestic">
+                <img src="~/folder/css/8.jpg" alt="@Lang.T(Context, "تور کیش", "Kish Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۷", "4.7")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور کیش", "Kish Tour")</span><span class="dest-price">@Lang.T(Context, "از ۳.۸ میلیون تومان", "From 3.8M Toman")</span></span>
+            </a>
+            <a asp-controller="Home" asp-action="Kordestan" class="dest-card" data-destination-type="domestic">
+                <img src="~/folder/css/9.jpg" alt="@Lang.T(Context, "تور کردستان", "Kurdistan Tour")" loading="lazy" />
+                <span class="dest-rate">★ @Lang.T(Context, "۴.۳", "4.3")</span>
+                <span class="dest-info"><span class="dest-name">@Lang.T(Context, "تور کردستان", "Kurdistan Tour")</span><span class="dest-price">@Lang.T(Context, "از ۲.۹ میلیون تومان", "From 2.9M Toman")</span></span>
+            </a>
+    </div>
+</section>
+
+
+
+<section class="band">
+    <div class="container">
+        <div class="band-grid">
+            <h2>@Lang.T(Context, "چرا آژانس افق؟", "Why Ofogh Agency?")</h2>
+            <div class="band-point">
+                <h3>@Lang.T(Context, "بهترین قیمت تضمینی", "Guaranteed Best Price")</h3>
+                <p>@Lang.T(Context, "مقایسه لحظه‌ای قیمت پروازها و هتل‌ها از چند منبع، بدون هزینه پنهان.", "Real-time price comparison across multiple sources, no hidden fees.")</p>
+            </div>
+            <div class="band-point">
+                <h3>@Lang.T(Context, "رزرو امن و مطمئن", "Safe & Reliable Booking")</h3>
+                <p>@Lang.T(Context, "پرداخت امن و امکان کنسلی آسان تا قبل از تاریخ پرواز طبق قوانین ایرلاین.", "Secure payment and easy cancellation before departure, per airline policy.")</p>
+            </div>
+            <div class="band-point">
+                <h3>@Lang.T(Context, "پشتیبانی ۲۴ ساعته", "24/7 Support")</h3>
+                <p>@Lang.T(Context, "تیم پشتیبانی ما هر روز هفته پاسخگوی سوالات شما پیش و پس از سفر است.", "Our support team answers your questions every day, before and after your trip.")</p>
+            </div>
+        </div>
+        <div class="stats-strip">
+            <div class="stat-item">
+                <span class="stat-number" data-count-to="5">0</span>
+                <span class="stat-label">@Lang.T(Context, "سال تجربه", "Years of experience")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-count-to="2000" data-suffix="+">0</span>
+                <span class="stat-label">@Lang.T(Context, "مسافر راضی", "Happy travelers")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-count-to="30" data-suffix="+">0</span>
+                <span class="stat-label">@Lang.T(Context, "مقصد پروازی", "Flight destinations")</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-count-to="24" data-suffix="@Lang.T(Context, "ساعته", "/7")">0</span>
+                <span class="stat-label">@Lang.T(Context, "پشتیبانی", "Support")</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "مسافران درباره ما چه می‌گویند", "What Travelers Say About Us")</h2>
+        <p>@Lang.T(Context, "تجربه واقعی هم‌سفران افق", "Real experiences from Ofogh travelers")</p>
+    </div>
+    <div class="testimonial-track">
+        <figure class="testimonial-card">
+            <blockquote class="testimonial-quote">@Lang.T(Context, "رزرو هتل و بلیط رو همزمان از افق گرفتم، هم قیمت بهتری داشت هم پشتیبانیش سریع جواب داد.", "I booked my hotel and flight together through Ofogh: better prices and fast support.")</blockquote>
+            <figcaption class="testimonial-person">
+                <span class="testimonial-avatar">@Lang.T(Context, "ن.م", "NM")</span>
+                <span><span class="testimonial-name">@Lang.T(Context, "نگار محمدی", "Negar Mohammadi")</span><span class="testimonial-role">@Lang.T(Context, "سفر به استانبول", "Trip to Istanbul")</span></span>
+            </figcaption>
+        </figure>
+        <figure class="testimonial-card">
+            <blockquote class="testimonial-quote">@Lang.T(Context, "تغییر تاریخ پروازم رو با یک تماس انجام دادن، بدون دردسر و هزینه اضافه.", "They changed my flight date with a single call, no hassle or extra cost.")</blockquote>
+            <figcaption class="testimonial-person">
+                <span class="testimonial-avatar">@Lang.T(Context, "ع.ر", "AR")</span>
+                <span><span class="testimonial-name">@Lang.T(Context, "علی رضایی", "Ali Rezaei")</span><span class="testimonial-role">@Lang.T(Context, "سفر به شیراز", "Trip to Shiraz")</span></span>
+            </figcaption>
+        </figure>
+        <figure class="testimonial-card">
+            <blockquote class="testimonial-quote">@Lang.T(Context, "تور مالدیو رو با راهنمایی تیم افق انتخاب کردم، از انتخاب هتل تا بلیط عالی بود.", "I picked my Maldives tour with the Ofogh team's guidance. Hotel and flight were both excellent.")</blockquote>
+            <figcaption class="testimonial-person">
+                <span class="testimonial-avatar">@Lang.T(Context, "س.ک", "SK")</span>
+                <span><span class="testimonial-name">@Lang.T(Context, "سارا کریمی", "Sara Karimi")</span><span class="testimonial-role">@Lang.T(Context, "سفر به مالدیو", "Trip to the Maldives")</span></span>
+            </figcaption>
+        </figure>
+        <figure class="testimonial-card">
+            <blockquote class="testimonial-quote">@Lang.T(Context, "هتل رو با آفر لحظه‌آخری رزرو کردم و نصف قیمت معمول تموم شد، خیلی راضی بودم.", "I booked a hotel with a last-minute deal for half the usual price. Very happy.")</blockquote>
+            <figcaption class="testimonial-person">
+                <span class="testimonial-avatar">@Lang.T(Context, "ر.ا", "RA")</span>
+                <span><span class="testimonial-name">@Lang.T(Context, "رضا احمدی", "Reza Ahmadi")</span><span class="testimonial-role">@Lang.T(Context, "سفر به کیش", "Trip to Kish")</span></span>
+            </figcaption>
+        </figure>
+        <figure class="testimonial-card">
+            <blockquote class="testimonial-quote">@Lang.T(Context, "بلیط پروازم رو دو روز مونده به سفر گرفتم، هم قیمت خوب بود هم سریع صادر شد.", "I got my flight ticket two days before the trip. Good price and issued fast.")</blockquote>
+            <figcaption class="testimonial-person">
+                <span class="testimonial-avatar">@Lang.T(Context, "م.ح", "MH")</span>
+                <span><span class="testimonial-name">@Lang.T(Context, "مریم حسینی", "Maryam Hosseini")</span><span class="testimonial-role">@Lang.T(Context, "سفر به فرانسه", "Trip to France")</span></span>
+            </figcaption>
+        </figure>
+        <figure class="testimonial-card">
+            <blockquote class="testimonial-quote">@Lang.T(Context, "رزرو گروهی برای خانواده‌مون رو بدون دردسر انجام دادیم، همه چیز هماهنگ بود.", "We booked a group trip for our family without any hassle. Everything was coordinated.")</blockquote>
+            <figcaption class="testimonial-person">
+                <span class="testimonial-avatar">@Lang.T(Context, "ا.ن", "AN")</span>
+                <span><span class="testimonial-name">@Lang.T(Context, "امیر نوری", "Amir Nouri")</span><span class="testimonial-role">@Lang.T(Context, "سفر به مشهد", "Trip to Mashhad")</span></span>
+            </figcaption>
+        </figure>
+    </div>
+    <div class="testimonial-dots">
+        <button type="button" class="is-active" aria-label="@Lang.T(Context, "نظر ۱", "Review 1")"></button>
+        <button type="button" aria-label="@Lang.T(Context, "نظر ۲", "Review 2")"></button>
+        <button type="button" aria-label="@Lang.T(Context, "نظر ۳", "Review 3")"></button>
+        <button type="button" aria-label="@Lang.T(Context, "نظر ۴", "Review 4")"></button>
+        <button type="button" aria-label="@Lang.T(Context, "نظر ۵", "Review 5")"></button>
+        <button type="button" aria-label="@Lang.T(Context, "نظر ۶", "Review 6")"></button>
+    </div>
+</section>
+
+<section class="container" id="faq-section">
+    <div class="faq-layout">
+        <div class="section-heading">
+            <h2>@Lang.T(Context, "سوالات متداول", "FAQ")</h2>
+            <p>@Lang.T(Context, "پاسخ سوالاتی که بیشتر پرسیده می‌شود", "Answers to the most commonly asked questions")</p>
+            <a class="btn btn-outline-brand-light mt-2" href="https://wa.me/989130862556" target="_blank" rel="noopener">@Lang.T(Context, "سوال دیگری دارید؟ در واتساپ بپرسید", "Another question? Ask on WhatsApp")</a>
+        </div>
+        <div>
+            <details class="faq-item" open>
+                <summary>@Lang.T(Context, "چطور می‌توانم بلیط رزرو شده را کنسل کنم؟", "How can I cancel a booked ticket?")</summary>
+                <div class="faq-answer">@Lang.T(Context, "از طریق پنل کاربری یا با تماس با پشتیبانی، می‌توانید طبق قوانین کنسلی ایرلاین مربوطه، بلیط را کنسل یا تغییر تاریخ دهید.", "Through your account panel or by contacting support, you can cancel or reschedule your ticket per the relevant airline's cancellation policy.")</div>
+            </details>
+            <details class="faq-item">
+                <summary>@Lang.T(Context, "آیا امکان رزرو هم‌زمان پرواز و هتل وجود دارد؟", "Can I book a flight and hotel at the same time?")</summary>
+                <div class="faq-answer">@Lang.T(Context, "بله، از طریق همین صفحه می‌توانید بین تب پرواز و هتل جابه‌جا شوید و هر دو را رزرو کنید.", "Yes, you can switch between the flight and hotel tabs on this page and book both.")</div>
+            </details>
+            <details class="faq-item">
+                <summary>@Lang.T(Context, "روش‌های پرداخت چه هستند؟", "What are the payment methods?")</summary>
+                <div class="faq-answer">@Lang.T(Context, "پرداخت آنلاین از طریق درگاه بانکی معتبر و همچنین پرداخت در دفتر آژانس امکان‌پذیر است.", "Online payment through a valid bank gateway, as well as payment at the agency office, are both available.")</div>
+            </details>
+            <details class="faq-item">
+                <summary>@Lang.T(Context, "در صورت تاخیر پرواز چه اتفاقی می‌افتد؟", "What happens if a flight is delayed?")</summary>
+                <div class="faq-answer">@Lang.T(Context, "تیم پشتیبانی افق تغییرات پروازها را رصد می‌کند و در صورت تاخیر یا کنسلی، از طریق پیامک و تماس به شما اطلاع می‌دهد.", "The Ofogh support team monitors flight changes and will notify you by SMS and phone call in case of delay or cancellation.")</div>
+            </details>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        (function () {
+            // Flight panel: round-trip switch
+            var roundtripSwitch = document.getElementById('home-fs-roundtrip');
+            var returnWrap = document.getElementById('home-fs-returndate-wrap');
+            var returnInput = document.getElementById('flight-return');
+            var dateInput = document.getElementById('flight-date');
+
+            function syncReturnVisibility() {
+                var isRoundTrip = roundtripSwitch.checked;
+                returnWrap.style.display = isRoundTrip ? '' : 'none';
+                if (returnInput) {
+                    returnInput.required = isRoundTrip;
+                    if (!isRoundTrip) {
+                        returnInput.value = '';
+                    }
+                }
+            }
+            function syncFlightMinReturn() {
+                if (dateInput && dateInput.value && returnInput) {
+                    returnInput.min = dateInput.value;
+                    if (returnInput.value && returnInput.value <= dateInput.value) {
+                        returnInput.value = '';
+                    }
+                }
+            }
+            if (roundtripSwitch) {
+                roundtripSwitch.addEventListener('change', syncReturnVisibility);
+                syncReturnVisibility();
+            }
+            if (dateInput) {
+                dateInput.addEventListener('change', syncFlightMinReturn);
+            }
+
+            // Hotel panel: check-out must be after check-in
+            var checkinInput = document.getElementById('hotel-checkin');
+            var checkoutInput = document.getElementById('hotel-checkout');
+            function syncHotelMin() {
+                if (checkinInput && checkinInput.value && checkoutInput) {
+                    checkoutInput.min = checkinInput.value;
+                    if (checkoutInput.value && checkoutInput.value <= checkinInput.value) {
+                        checkoutInput.value = '';
+                    }
+                }
+            }
+            if (checkinInput) {
+                checkinInput.addEventListener('change', syncHotelMin);
+            }
+        })();
+    </script>
+}

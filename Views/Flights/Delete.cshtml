@@ -1,0 +1,42 @@
+﻿@model agancywebProject.Models.DB.Flight
+
+@{
+    ViewData["Title"] = Lang.T(Context, "حذف پرواز", "Delete Flight");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "حذف پرواز", "Delete flight")</h2>
+        <p>@Lang.T(Context, "آیا از حذف این پرواز مطمئن هستید؟", "Are you sure you want to delete this flight?")</p>
+    </div>
+    <div class="table-wrap admin-form-wrap">
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "مبدا", "Origin")</dt>
+            <dd>@Lang.Fin(Context, Model.Origin)</dd>
+
+            <dt>@Lang.T(Context, "مقصد", "Destination")</dt>
+            <dd>@Lang.Fin(Context, Model.distination)</dd>
+
+            <dt>@Lang.T(Context, "تاریخ رفت", "Departure date")</dt>
+            <dd>@Html.DisplayFor(model => model.startdate)</dd>
+
+            <dt>@Lang.T(Context, "قیمت", "Price")</dt>
+            <dd>@Html.DisplayFor(model => model.price)</dd>
+
+            <dt>@Lang.T(Context, "ظرفیت", "Capacity")</dt>
+            <dd>@Html.DisplayFor(model => model.capacity)</dd>
+
+            <dt>@Lang.T(Context, "ساعت رفت", "Departure time")</dt>
+            <dd>@Html.DisplayFor(model => model.entrytime)</dd>
+
+            <dt>@Lang.T(Context, "کلاس پرواز", "Flight class")</dt>
+            <dd>@Lang.FlightClass(Context, Model.flightClass)</dd>
+        </dl>
+
+        <form asp-action="Delete" class="admin-form-actions mt-3">
+            <input type="hidden" asp-for="Flight_Id" />
+            <input type="submit" value="@Lang.T(Context, "بله، حذف شود", "Yes, delete it")" class="btn btn-danger" />
+            <a asp-action="Index" class="admin-back-link">→ @Lang.T(Context, "انصراف و بازگشت", "Cancel and go back")</a>
+        </form>
+    </div>
+</div>

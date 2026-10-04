@@ -1,0 +1,51 @@
+﻿@model agancywebProject.Models.DB.Hotel
+
+@{
+    ViewData["Title"] = Lang.T(Context, "حذف هتل", "Delete Hotel");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "حذف هتل", "Delete hotel")</h2>
+        <p>@Lang.T(Context, "آیا از حذف این هتل مطمئن هستید؟", "Are you sure you want to delete this hotel?")</p>
+    </div>
+    <div class="table-wrap admin-form-wrap">
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "نام هتل", "Hotel name")</dt>
+            <dd>@Lang.Fin(Context, Model.name)</dd>
+
+            <dt>@Lang.T(Context, "استان", "City")</dt>
+            <dd>@Lang.Fin(Context, Model.city)</dd>
+
+            <dt>@Lang.T(Context, "تاریخ خالی بودن از", "Available from")</dt>
+            <dd>@Html.DisplayFor(model => model.startdate)</dd>
+
+            <dt>@Lang.T(Context, "تاریخ خالی بودن تا", "Available until")</dt>
+            <dd>@Html.DisplayFor(model => model.finishdate)</dd>
+
+            <dt>@Lang.T(Context, "قیمت (هر شب، تومان)", "Price (per night, Toman)")</dt>
+            <dd>@Html.DisplayFor(model => model.price)</dd>
+
+            <dt>@Lang.T(Context, "آدرس", "Address")</dt>
+            <dd>@Lang.Fin(Context, Model.address)</dd>
+
+            <dt>@Lang.T(Context, "ستاره", "Stars")</dt>
+            <dd>@Html.DisplayFor(model => model.star)</dd>
+
+            <dt>@Lang.T(Context, "وعده غذایی", "Meals")</dt>
+            <dd>@Lang.Meal(Context, Model.meal, Model.MealDisplay)</dd>
+
+            <dt>@Lang.T(Context, "نام اتاق", "Room name")</dt>
+            <dd>@Lang.Fin(Context, Model.roomName)</dd>
+
+            <dt>@Lang.T(Context, "ظرفیت اتاق (نفر)", "Room capacity (persons)")</dt>
+            <dd>@Html.DisplayFor(model => model.roomCapacity)</dd>
+        </dl>
+
+        <form asp-action="Delete" class="admin-form-actions mt-3">
+            <input type="hidden" asp-for="Hotel_Id" />
+            <input type="submit" value="@Lang.T(Context, "بله، حذف شود", "Yes, delete it")" class="btn btn-danger" />
+            <a asp-action="Index" class="admin-back-link">→ @Lang.T(Context, "انصراف و بازگشت", "Cancel and go back")</a>
+        </form>
+    </div>
+</div>

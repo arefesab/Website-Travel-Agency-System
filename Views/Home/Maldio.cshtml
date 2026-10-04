@@ -1,0 +1,56 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = Lang.T(Context, "کیش", "Kish");
+}
+<div class="tour-page">
+    <div class="tour-hero" style="background-image:url('~/folder/css/8.jpg');">
+        <div class="container tour-hero-content">
+            <nav class="tour-breadcrumb">
+                <a asp-controller="Home" asp-action="Index">@Lang.T(Context, "صفحه اصلی", "Home")</a>
+                <span>/</span>
+                <span>@Lang.T(Context, "تور کیش", "Kish Tour")</span>
+            </nav>
+            <h1>@Lang.T(Context, "تور کیش", "Kish Tour")</h1>
+        </div>
+    </div>
+    <div class="tour-body">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="explaination">
+                    @if (Lang.IsEnglish(Context))
+                    {
+                        <p>Maldives is one of Asia's most amazing destinations, offering an unparalleled travel experience for everyone. Maldives, the smallest country in Asia, lies in the Indian Ocean southwest of India. This small country, with an area of about 290 square kilometers, shares a maritime border with Sri Lanka and has a beautiful and distinctive nature that has been named one of the best places in the world to relax and unwind. The Maldives islands, located in the Indian Ocean, consist of 1,192 coral islands, only about 200 of which are inhabited. Overall, the islands have a warm, tropical climate and also see heavy rainfall at times. The Maldives' weather is such that it's often pleasant for travel and leisure in all four seasons — it could be said it's always a good time to visit.</p>
+                    }
+                    else
+                    {
+                        <p>
+                <br />
+                یکی از شگفت انگیز ترین مقاصد آسیایی، تور مالدیو می باشد که
+                تجربه ای بی نظیر از یک سفر را برای همه رقم خواهد زد. مالدیو به عنوان
+                کوچکترین کشور آسیایی  در اقیانوس آرام  در جنوب غربی هندوستان قرار گرفته است.
+                این کشور کوچک با مساحتی بالغ بر 290 کیلومتر، با سریلانکا مرز آبی
+                مشترک دارد و همچنین دارای طبیعتی زیبا و بسیار خاص می باشد
+                که یکی از بهترین مکان های جهان برای تفریح و استراحت معرفی شده است.
+                <br /><br /><br /><br />
+                جزیره مالدیو واقع در اقیانوس هند، از 1192 جزیره
+                مرجانی تشکیل شده است که تنها بر روی 200 جزیره
+                آن زندگی می کنند. به طور کلی این جزیره دارای آب و هوایی گرم و
+                استوایی می باشد و شاهد باران های شدیدی در آن نیز خواهیم بود.
+                آب و هوای مالدیو به گونه ای است که اغلب اوقات در
+                چهار فصل سال دارای آب و هوایی مناسب برای سفر و تفریح می باشد.
+                می توان گفت همیشه زمان سفر به مالدیو است.
+            </p>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="tour-cta-card">
+                    <h3>@Lang.T(Context, "رزرو تور کیش", "Book the Kish Tour")</h3>
+                    <p>@Lang.T(Context, "برای مشاهده پروازها و هتل‌های موجود برای این مقصد، یکی از گزینه‌های زیر را انتخاب کنید.", "To see available flights and hotels for this destination, choose one of the options below.")</p>
+                    <a asp-controller="Flightsshow" asp-action="Index" class="btn btn-brand w-100">@Lang.T(Context, "مشاهده پروازها", "View flights")</a>
+                    <a asp-controller="Hotelsshow" asp-action="Index" class="btn btn-outline-brand w-100 mt-2">@Lang.T(Context, "مشاهده هتل‌ها", "View hotels")</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

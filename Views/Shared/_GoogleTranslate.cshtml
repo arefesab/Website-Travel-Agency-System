@@ -1,0 +1,86 @@
+@* Google Website Translator: translates the Persian page to English in the visitor's browser.
+   Loaded only when the visitor picked "English" (cookie site-lang=en).
+   If Google cannot be reached, the page falls back to Persian automatically. *@
+<div id="google_translate_element" style="display:none"></div>
+<style>
+    /* hide Google's own toolbar / tooltips so the site keeps its own look */
+    body > .skiptranslate, .goog-te-banner-frame, iframe.skiptranslate,
+    .VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf, #goog-gt-tt, .goog-tooltip { display: none !important; }
+    body { top: 0 !important; }
+    .goog-text-highlight { background: none !important; box-shadow: none !important; }
+</style>
+<script>
+    (function () {
+        var finished = false;
+        var host = location.hostname;
+
+        // 1) Tell the translator: source = Persian, target = English (set from JS so the value is not URL-encoded)
+        document.cookie = "googtrans=/fa/en; path=/";
+        if (host.indexOf(".") > -1 && !/^\d+(\.\d+){3}$/.test(host)) {
+            document.cookie = "googtrans=/fa/en; path=/; domain=" + host;
+            document.cookie = "googtrans=/fa/en; path=/; domain=." + host;
+        }
+
+        // Google could not be reached / the widget never appeared: go back to Persian (RTL) and tell the visitor.
+        function fallbackToPersian() {
+            if (finished) return;
+            finished = true;
+            try { sessionStorage.setItem("translate-failed", "1"); } catch (e) {}
+            var past = "Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "googtrans=; expires=" + past + "; path=/";
+            if (host.indexOf(".") > -1) {
+                document.cookie = "googtrans=; expires=" + past + "; path=/; domain=" + host;
+                document.cookie = "googtrans=; expires=" + past + "; path=/; domain=." + host;
+            }
+            document.cookie = "site-lang=fa; max-age=31536000; path=/";
+            location.reload();
+        }
+
+        // 2) Once the widget has built its language <select>, choose English on it (the most reliable trigger)
+        function pickEnglish() {
+            var combo = document.querySelector("select.goog-te-combo");
+            if (!combo) return false;
+            if (combo.value !== "en") {
+                combo.value = "en";
+                combo.dispatchEvent(new Event("change"));
+            }
+            return true;
+        }
+
+        window.googleTranslateElementInit = function () {
+            try {
+                new google.translate.TranslateElement({
+                    pageLanguage: "fa",
+                    includedLanguages: "en",
+                    autoDisplay: false
+                }, "google_translate_element");
+            } catch (e) {
+                fallbackToPersian();
+                return;
+            }
+
+            var tries = 0;
+            var timer = setInterval(function () {
+                tries++;
+                if (pickEnglish()) {
+                    finished = true;
+                    clearInterval(timer);
+                } else if (tries > 40) { // ~10 seconds without the widget appearing
+                    clearInterval(timer);
+                    fallbackToPersian();
+                }
+            }, 250);
+        };
+
+        var s = document.createElement("script");
+        s.async = true;
+        s.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+        s.onerror = fallbackToPersian;
+        document.head.appendChild(s);
+
+        // Blocked / very slow connection: the script never called back
+        setTimeout(function () {
+            if (!finished && !window.google) fallbackToPersian();
+        }, 10000);
+    })();
+</script>

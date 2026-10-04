@@ -1,0 +1,73 @@
+@model agancywebProject.Models.DB.Flight
+
+@{
+    ViewData["Title"] = Lang.T(Context, "ویرایش پرواز", "Edit Flight");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "ویرایش پرواز", "Edit flight")</h2>
+        <p>@Lang.T(Context, "اطلاعات این پرواز را به‌روزرسانی کنید", "Update this flight's details")</p>
+    </div>
+
+    <div class="table-wrap admin-form-wrap">
+        <form asp-action="Edit" class="row g-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger col-12"></div>
+            <input type="hidden" asp-for="Flight_Id" />
+            <div class="col-md-6">
+                <label asp-for="Origin" class="form-label">@Lang.T(Context, "مبدا", "Origin")</label>
+                <input asp-for="Origin" class="form-control" />
+                <span asp-validation-for="Origin" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="distination" class="form-label">@Lang.T(Context, "مقصد", "Destination")</label>
+                <input asp-for="distination" class="form-control" />
+                <span asp-validation-for="distination" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="startdate" class="form-label">@Lang.T(Context, "تاریخ رفت", "Departure date")</label>
+                <input asp-for="startdate" class="form-control" />
+                <span asp-validation-for="startdate" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="entrytime" class="form-label">@Lang.T(Context, "ساعت رفت", "Departure time")</label>
+                <input asp-for="entrytime" class="form-control" />
+                <span asp-validation-for="entrytime" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="capacity" class="form-label">@Lang.T(Context, "ظرفیت", "Capacity")</label>
+                <input asp-for="capacity" class="form-control" min="10" max="50" />
+                <span asp-validation-for="capacity" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="flightClass" class="form-label">@Lang.T(Context, "کلاس پرواز", "Flight class")</label>
+                <select asp-for="flightClass" class="form-select">
+                    <option value="">@Lang.T(Context, "انتخاب کنید", "Select")</option>
+                    <option value="اکونومی">@Lang.T(Context, "اکونومی", "Economy")</option>
+                    <option value="بیزینس‌کلاس">@Lang.T(Context, "بیزینس‌کلاس", "Business class")</option>
+                    <option value="فرست‌کلاس">@Lang.T(Context, "فرست‌کلاس", "First class")</option>
+                </select>
+                <span asp-validation-for="flightClass" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="price" class="form-label">@Lang.T(Context, "قیمت", "Price")</label>
+                <input asp-for="price" type="text" class="form-control price-input" placeholder="0" />
+                <span asp-validation-for="price" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 admin-form-actions">
+                <input type="submit" value="@Lang.T(Context, "ذخیره تغییرات", "Save changes")" class="btn btn-brand" />
+                <a asp-action="Index" class="btn btn-outline-secondary">@Lang.T(Context, "انصراف", "Cancel")</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="admin-back-link">→ @Lang.T(Context, "بازگشت به لیست پروازها", "Back to flights")</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/price-format.js" asp-append-version="true"></script>
+}

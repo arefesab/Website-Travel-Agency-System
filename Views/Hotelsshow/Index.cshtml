@@ -1,0 +1,157 @@
+﻿@model IEnumerable<agancywebProject.Models.DB.Hotel>
+
+@{
+    ViewData["Title"] = Lang.T(Context, "لیست هتل‌ها", "Hotels");
+    bool isFiltered = ViewBag.IsFiltered ?? false;
+    bool needsDate = ViewBag.NeedsDate ?? false;
+    string? curCity = ViewBag.City;
+    string? curCheckin = ViewBag.Checkin;
+    string? curCheckout = ViewBag.Checkout;
+    string? dateError = ViewBag.DateError;
+    string[] cities = { "تهران", "اهواز", "اصفهان", "بندرعباس", "مشهد", "شیراز", "کرمان", "عسلویه", "کیش", "تبریز", "قشم" };
+}
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "لیست هتل‌ها", "Hotels")</h2>
+        <p>@Lang.T(Context, "هتل‌های موجود داخلی و خارجی را جستجو و رزرو کنید", "Search and book available domestic and international hotels")</p>
+    </div>
+
+    <div class="table-wrap mb-3">
+        <form asp-controller="Hotelsshow" asp-action="Index" method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label" for="hs-city">@Lang.T(Context, "شهر", "City")</label>
+                <select id="hs-city" name="city" class="form-select">
+                    <option value="">@Lang.T(Context, "همه شهرها", "All cities")</option>
+                    @foreach (var c in cities)
+                    {
+                        <option value="@c" selected="@(c == curCity)">@Lang.Fin(Context, c)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="hs-checkin">@Lang.T(Context, "تاریخ ورود", "Check-in") <span class="text-danger">*</span></label>
+                <input id="hs-checkin" type="date" name="checkin" value="@curCheckin" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="hs-checkout">@Lang.T(Context, "تاریخ خروج", "Check-out")</label>
+                <input id="hs-checkout" type="date" name="checkout" value="@curCheckout" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-brand w-100">@Lang.T(Context, "جستجو", "Search")</button>
+            </div>
+            <div class="col-12">
+                <p class="search-hint">@Lang.T(Context, "برای جستجو وارد کردن تاریخ ورود الزامی است.", "A check-in date is required to search.")</p>
+            </div>
+        </form>
+        @if (isFiltered)
+        {
+            <div class="mt-2">
+                <a asp-controller="Hotelsshow" asp-action="Index" class="filter-clear">✕ @Lang.T(Context, "پاک کردن فیلترها", "Clear filters")</a>
+            </div>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(dateError))
+    {
+        <div class="alert alert-danger">@dateError</div>
+    }
+
+    @if (needsDate)
+    {
+        <div class="empty-state">
+            <p>@Lang.T(Context, "برای مشاهده هتل‌ها، لطفاً تاریخ ورود را انتخاب کنید.", "Please select a check-in date to view hotels.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <div class="list-toolbar">
+                <input type="text" class="list-search" placeholder="@Lang.T(Context, "جستجو در هتل‌ها (نام، شهر، درجه...)", "Search hotels (name, city, stars...)")" />
+                <span class="list-count"></span>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>@Lang.T(Context, "نام هتل", "Hotel name")</th>
+                            <th>@Lang.T(Context, "نام اتاق", "Room name")</th>
+                            <th>@Lang.T(Context, "استان", "City")</th>
+                            <th>@Lang.T(Context, "تاریخ خالی بودن از", "Available from")</th>
+                            <th>@Lang.T(Context, "تاریخ خالی بودن تا", "Available until")</th>
+                            <th>@Lang.T(Context, "قیمت (هر شب، تومان)", "Price (per night, Toman)")</th>
+                            <th class="col-address">@Lang.T(Context, "آدرس", "Address")</th>
+                            <th>@Lang.T(Context, "ستاره", "Stars")</th>
+                            <th>@Lang.T(Context, "وعده غذایی", "Meals")</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            int pct = 0;
+                            (ViewBag.HotelDiscounts as Dictionary<int, int>)?.TryGetValue(item.Hotel_Id, out pct);
+                            <tr>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.Hotel_Id" class="hotel-name-link">
+                                        @Lang.Fin(Context, item.name)@(string.IsNullOrWhiteSpace(item.roomName) ? "" : " – " + Lang.Fin(Context, item.roomName))
+                                    </a>
+                                </td>
+                                <td>@Lang.Fin(Context, item.roomName)</td>
+                                <td>@Lang.Fin(Context, item.city)</td>
+                                <td>@Html.DisplayFor(modelItem => item.startdate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.finishdate)</td>
+                                <td>
+                                    @if (pct > 0) { <span class="off-chip">@pct% @Lang.T(Context, "تخفیف", "OFF")</span> <s class="deal-old">@item.price.ToString("N0")</s> }
+                                    <strong>@HotelPricing.Apply(item.price, pct).ToString("N0")</strong>
+                                </td>
+                                <td class="col-address">@Lang.Fin(Context, item.address)</td>
+                                <td>@Html.DisplayFor(modelItem => item.star)</td>
+                                <td>@Lang.Meal(Context, item.meal, item.MealDisplay)</td>
+                                <td>
+                                    <a asp-controller="Booking" asp-action="Reserve" asp-route-id="@item.Hotel_Id" class="btnstyle">@Lang.T(Context, "رزرو", "Book")</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    @if (isFiltered)
+                    {
+                        <p>@Lang.T(Context, "هتلی با این مشخصات پیدا نشد.", "No hotels found matching your criteria.")</p>
+                        <a asp-controller="Hotelsshow" asp-action="Index" class="filter-clear">✕ @Lang.T(Context, "پاک کردن فیلترها و مشاهده همه هتل‌ها", "Clear filters and view all hotels")</a>
+                    }
+                    else
+                    {
+                        <p>@Lang.T(Context, "در حال حاضر هتلی برای نمایش وجود ندارد.", "There are no hotels to show right now.")</p>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var checkinInput = document.getElementById('hs-checkin');
+            var checkoutInput = document.getElementById('hs-checkout');
+
+            function syncMin() {
+                if (checkinInput && checkinInput.value && checkoutInput) {
+                    checkoutInput.min = checkinInput.value;
+                    if (checkoutInput.value && checkoutInput.value <= checkinInput.value) {
+                        checkoutInput.value = '';
+                    }
+                }
+            }
+
+            if (checkinInput) {
+                checkinInput.addEventListener('change', syncMin);
+                syncMin();
+            }
+        })();
+    </script>
+}

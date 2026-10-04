@@ -1,0 +1,61 @@
+﻿@model agancywebProject.Models.DB.FlightBooking
+@{
+    var flight = Model.Flight!;
+    ViewData["Title"] = Lang.T(Context, "درگاه پرداخت (آزمایشی)", "Payment Gateway (Test)");
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="@(Lang.IsTranslated(Context) ? "en" : "fa")" dir="@(Lang.IsTranslated(Context) ? "ltr" : "rtl")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Lang.T(Context, "درگاه پرداخت آزمایشی", "Payment Gateway (Test)")</title>
+    @if (Lang.IsTranslated(Context))
+    {
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    }
+    else
+    {
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    }
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (Lang.IsTranslated(Context))
+    {
+        <link rel="stylesheet" href="~/css/site-ltr.css" asp-append-version="true" />
+    }
+</head>
+<body>
+    <div class="page-container" style="max-width:480px;">
+        <div class="table-wrap fake-gateway-card">
+            <div class="fake-gateway-badge">@Lang.T(Context, "درگاه پرداخت آزمایشی", "Payment Gateway (Test)")</div>
+            <h2 class="mt-2 mb-1">@Lang.T(Context, "تکمیل پرداخت", "Complete payment")</h2>
+            <p class="form-text-hint mb-3">
+                @Lang.T(Context, "این یک درگاه شبیه‌سازی‌شده برای تست سایت است (به بانک واقعی وصل نیست). برای اتصال به درگاه بانکی واقعی، تنظیمات Payment در appsettings.json را کامل کنید.", "This is a simulated gateway for testing the site (not connected to a real bank). To connect a real payment gateway, complete the Payment settings in appsettings.json.")
+            </p>
+
+            <dl class="detail-list mb-3">
+                <dt>@Lang.T(Context, "پرواز", "Flight")</dt>
+                <dd>@Lang.Fin(Context, flight.Origin) — @Lang.Fin(Context, flight.distination)</dd>
+                <dt>@Lang.T(Context, "تاریخ", "Date")</dt>
+                <dd>@Lang.Num(Context, flight.startdate.ToString("yyyy-MM-dd"))</dd>
+                <dt>@Lang.T(Context, "خریدار", "Buyer")</dt>
+                <dd>@Model.FullName</dd>
+                <dt>@Lang.T(Context, "تعداد صندلی", "Seats")</dt>
+                <dd>@Model.SeatCount</dd>
+                <dt>@Lang.T(Context, "مبلغ قابل پرداخت", "Amount due")</dt>
+                <dd><strong class="booking-total">@Model.TotalPrice.ToString("N0") @Lang.T(Context, "تومان", "Toman")</strong></dd>
+            </dl>
+
+            <form asp-controller="FlightBooking" asp-action="FakeGatewayConfirm" method="post" class="d-grid gap-2">
+                <input type="hidden" name="authority" value="@Model.Authority" />
+                <button type="submit" name="approved" value="true" class="btn btn-brand w-100">@Lang.T(Context, "پرداخت موفق (شبیه‌سازی)", "Successful payment (simulated)")</button>
+                <button type="submit" name="approved" value="false" class="btn btn-outline-secondary w-100">@Lang.T(Context, "انصراف از پرداخت", "Cancel payment")</button>
+            </form>
+        </div>
+    </div>
+    @if (Lang.IsTranslated(Context))
+    {
+        <partial name="_GoogleTranslate" />
+    }
+</body>
+</html>

@@ -1,0 +1,70 @@
+﻿@model agancywebProject.Models.DB.FlightBooking
+@{
+    var flight = Model.Flight;
+    ViewData["Title"] = Lang.T(Context, "نتیجه رزرو پرواز", "Flight booking result");
+    string? error = ViewBag.Error as string;
+}
+
+<div class="page-container" style="max-width:640px;">
+    <div class="section-heading" style="margin-top:0;">
+        <h2>@Lang.T(Context, "نتیجه رزرو", "Booking result")</h2>
+    </div>
+
+    <div class="booking-steps">
+        <div class="booking-step is-done">
+            <div class="booking-step-circle">✓</div>
+            <div class="booking-step-label">@Lang.T(Context, "اطلاعات رزرو", "Booking info")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step is-done">
+            <div class="booking-step-circle">✓</div>
+            <div class="booking-step-label">@Lang.T(Context, "پیش‌نمایش", "Preview")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step is-done">
+            <div class="booking-step-circle">✓</div>
+            <div class="booking-step-label">@Lang.T(Context, "پرداخت", "Payment")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step is-active">
+            <div class="booking-step-circle">@Lang.T(Context, "۴", "4")</div>
+            <div class="booking-step-label">@Lang.T(Context, "نتیجه", "Result")</div>
+        </div>
+    </div>
+
+    @if (Model.Status == agancywebProject.Models.DB.BookingStatus.Paid)
+    {
+        <div class="table-wrap booking-summary-card booking-result-success">
+            <div class="booking-result-icon">✔</div>
+            <h3>@Lang.T(Context, "رزرو شما با موفقیت تایید شد", "Your booking was successfully confirmed")</h3>
+            <p class="form-text-hint">@Lang.T(Context, "کد پیگیری پرداخت شما:", "Your payment tracking code:") <strong dir="ltr">@Model.RefId</strong></p>
+            @if (flight != null)
+            {
+                <dl class="detail-list mt-3">
+                    <dt>@Lang.T(Context, "پرواز", "Flight")</dt>
+                    <dd>@Lang.Fin(Context, flight.Origin) — @Lang.Fin(Context, flight.distination)</dd>
+                    <dt>@Lang.T(Context, "تاریخ رفت", "Departure date")</dt>
+                    <dd>@Lang.Num(Context, flight.startdate.ToString("yyyy-MM-dd"))</dd>
+                    <dt>@Lang.T(Context, "تعداد صندلی", "Seat count")</dt>
+                    <dd>@Model.SeatCount @Lang.T(Context, "صندلی", "seats")</dd>
+                    <dt>@Lang.T(Context, "مبلغ پرداخت‌شده", "Amount paid")</dt>
+                    <dd><strong>@Model.TotalPrice.ToString("N0") @Lang.T(Context, "تومان", "Toman")</strong></dd>
+                </dl>
+            }
+            <a asp-controller="Flightsshow" asp-action="Index" class="btn btn-brand w-100 mt-3">@Lang.T(Context, "بازگشت به لیست پروازها", "Back to flights")</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap booking-summary-card booking-result-failed">
+            <div class="booking-result-icon">✕</div>
+            <h3>@Lang.T(Context, "رزرو تکمیل نشد", "Booking was not completed")</h3>
+            <p class="form-text-hint">@(error ?? Lang.T(Context, "پرداخت با مشکل مواجه شد یا لغو شد.", "Payment failed or was cancelled."))</p>
+            @if (flight != null)
+            {
+                <a asp-controller="FlightBooking" asp-action="Reserve" asp-route-id="@flight.Flight_Id" class="btn btn-brand w-100 mt-2">@Lang.T(Context, "تلاش مجدد", "Try again")</a>
+            }
+            <a asp-controller="Flightsshow" asp-action="Index" class="btn btn-outline-brand-light w-100 mt-2">@Lang.T(Context, "بازگشت به لیست پروازها", "Back to flights")</a>
+        </div>
+    }
+</div>

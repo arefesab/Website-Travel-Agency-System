@@ -1,0 +1,176 @@
+@model agancywebProject.Models.AdminBookingsViewModel
+@using agancywebProject.Models.DB
+
+@{
+    ViewData["Title"] = Lang.T(Context, "مدیریت رزروها", "Manage bookings");
+
+    void Pill(BookingStatus s, bool expired)
+    {
+        switch (s)
+        {
+            case BookingStatus.Paid:
+                <span class="status-pill status-pill-paid">@Lang.T(Context, "پرداخت‌شده", "Paid")</span>
+                break;
+            case BookingStatus.Locked:
+                if (expired)
+                {
+                    <span class="status-pill status-pill-failed">@Lang.T(Context, "منقضی‌شده (پرداخت انجام نشد)", "Expired (not paid)")</span>
+                }
+                else
+                {
+                    <span class="status-pill status-pill-pending">@Lang.T(Context, "در حال پرداخت", "Payment in progress")</span>
+                }
+                break;
+            case BookingStatus.Pending:
+                <span class="status-pill status-pill-pending">@Lang.T(Context, "در انتظار پرداخت", "Awaiting payment")</span>
+                break;
+            case BookingStatus.Failed:
+                <span class="status-pill status-pill-failed">@Lang.T(Context, "ناموفق", "Failed")</span>
+                break;
+            case BookingStatus.Cancelled:
+                <span class="status-pill status-pill-failed">@Lang.T(Context, "لغو شده", "Cancelled")</span>
+                break;
+        }
+    }
+}
+
+<div class="page-container">
+    @if (TempData["AdminBookingMsg"] is string okMsg && !string.IsNullOrWhiteSpace(okMsg))
+    {
+        <div class="alert alert-success">@okMsg</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h1 class="h3 mb-0">@Lang.T(Context, "مدیریت رزروها", "Manage bookings")</h1>
+        <a asp-controller="Admin" asp-action="Index" class="admin-back-link">→ @Lang.T(Context, "بازگشت به پنل مدیریت", "Back to admin panel")</a>
+    </div>
+
+    <form method="get" asp-action="Index" class="table-wrap admin-form-wrap mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label" for="q">@Lang.T(Context, "جستجو (نام یا موبایل)", "Search (name or phone)")</label>
+                <input type="text" id="q" name="q" value="@Model.Q" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="type">@Lang.T(Context, "نوع رزرو", "Type")</label>
+                <select id="type" name="type" class="form-select">
+                    <option value="all" selected="@(Model.Type == "all")">@Lang.T(Context, "همه", "All")</option>
+                    <option value="hotel" selected="@(Model.Type == "hotel")">@Lang.T(Context, "هتل", "Hotels")</option>
+                    <option value="flight" selected="@(Model.Type == "flight")">@Lang.T(Context, "پرواز", "Flights")</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="status">@Lang.T(Context, "وضعیت", "Status")</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">@Lang.T(Context, "همه", "All")</option>
+                    <option value="@((int)BookingStatus.Paid)" selected="@(Model.Status == ((int)BookingStatus.Paid).ToString())">@Lang.T(Context, "پرداخت‌شده", "Paid")</option>
+                    <option value="@((int)BookingStatus.Pending)" selected="@(Model.Status == ((int)BookingStatus.Pending).ToString())">@Lang.T(Context, "در انتظار پرداخت", "Awaiting payment")</option>
+                    <option value="@((int)BookingStatus.Locked)" selected="@(Model.Status == ((int)BookingStatus.Locked).ToString())">@Lang.T(Context, "در حال پرداخت", "Payment in progress")</option>
+                    <option value="@((int)BookingStatus.Failed)" selected="@(Model.Status == ((int)BookingStatus.Failed).ToString())">@Lang.T(Context, "ناموفق", "Failed")</option>
+                    <option value="@((int)BookingStatus.Cancelled)" selected="@(Model.Status == ((int)BookingStatus.Cancelled).ToString())">@Lang.T(Context, "لغو شده", "Cancelled")</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-brand">@Lang.T(Context, "فیلتر", "Filter")</button>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Type != "flight")
+    {
+        <h2 class="h5 mb-2">🏨 @Lang.T(Context, "رزروهای هتل", "Hotel bookings") (@Model.HotelBookings.Count)</h2>
+        <div class="table-wrap mb-4">
+            @if (Model.HotelBookings.Count == 0)
+            {
+                <p class="form-text-hint mb-0">@Lang.T(Context, "رزروی یافت نشد.", "No bookings found.")</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>@Lang.T(Context, "هتل", "Hotel")</th>
+                                <th>@Lang.T(Context, "بازه اقامت", "Stay")</th>
+                                <th>@Lang.T(Context, "مسافر", "Guest")</th>
+                                <th>@Lang.T(Context, "مبلغ (تومان)", "Total (Toman)")</th>
+                                <th>@Lang.T(Context, "وضعیت", "Status")</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var b in Model.HotelBookings)
+                            {
+                                <tr>
+                                    <td>@b.Booking_Id</td>
+                                    <td>@b.Hotel?.name</td>
+                                    <td>@b.CheckIn.ToString("yyyy-MM-dd") → @b.CheckOut.ToString("yyyy-MM-dd") (@b.Nights @Lang.T(Context, "شب", "nights"))</td>
+                                    <td>@b.FullName<br /><small class="form-text-hint">@b.PhoneNumber</small></td>
+                                    <td>@b.TotalPrice.ToString("N0")</td>
+                                    <td>@{ Pill(b.Status, b.IsLockExpired); }</td>
+                                    <td class="row-actions-cell">
+                                        <div class="row-actions">
+                                            <a asp-action="EditHotel" asp-route-id="@b.Booking_Id">@Lang.T(Context, "ویرایش", "Edit")</a>
+                                            <a asp-action="DeleteHotel" asp-route-id="@b.Booking_Id">@Lang.T(Context, "حذف", "Delete")</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.Type != "hotel")
+    {
+        <h2 class="h5 mb-2">✈ @Lang.T(Context, "رزروهای پرواز", "Flight bookings") (@Model.FlightBookings.Count)</h2>
+        <div class="table-wrap">
+            @if (Model.FlightBookings.Count == 0)
+            {
+                <p class="form-text-hint mb-0">@Lang.T(Context, "رزروی یافت نشد.", "No bookings found.")</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>@Lang.T(Context, "پرواز", "Flight")</th>
+                                <th>@Lang.T(Context, "تاریخ", "Date")</th>
+                                <th>@Lang.T(Context, "مسافر", "Passenger")</th>
+                                <th>@Lang.T(Context, "صندلی", "Seats")</th>
+                                <th>@Lang.T(Context, "مبلغ (تومان)", "Total (Toman)")</th>
+                                <th>@Lang.T(Context, "وضعیت", "Status")</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var b in Model.FlightBookings)
+                            {
+                                <tr>
+                                    <td>@b.FlightBooking_Id</td>
+                                    <td>@b.Flight?.Origin → @b.Flight?.distination</td>
+                                    <td>@(b.Flight?.startdate.ToString("yyyy-MM-dd"))</td>
+                                    <td>@b.FullName<br /><small class="form-text-hint">@b.PhoneNumber</small></td>
+                                    <td>@b.SeatCount</td>
+                                    <td>@b.TotalPrice.ToString("N0")</td>
+                                    <td>@{ Pill(b.Status, b.IsLockExpired); }</td>
+                                    <td class="row-actions-cell">
+                                        <div class="row-actions">
+                                            <a asp-action="EditFlight" asp-route-id="@b.FlightBooking_Id">@Lang.T(Context, "ویرایش", "Edit")</a>
+                                            <a asp-action="DeleteFlight" asp-route-id="@b.FlightBooking_Id">@Lang.T(Context, "حذف", "Delete")</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>

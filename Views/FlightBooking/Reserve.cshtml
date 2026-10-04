@@ -1,0 +1,133 @@
+﻿@model agancywebProject.Models.DB.FlightBooking
+@{
+    var flight = (agancywebProject.Models.DB.Flight)ViewBag.Flight;
+    int remaining = ViewBag.RemainingSeats;
+    ViewData["Title"] = Lang.T(Context, "رزرو پرواز ", "Book flight ") + Lang.Fin(Context, flight.Origin) + Lang.T(Context, " به ", " to ") + Lang.Fin(Context, flight.distination);
+}
+
+<div class="page-container">
+    <div class="tour-breadcrumb hotel-breadcrumb">
+        <a asp-controller="Flightsshow" asp-action="Index">@Lang.T(Context, "لیست پروازها", "Flights")</a>
+        <span>›</span>
+        @Lang.T(Context, "رزرو", "Booking")
+    </div>
+
+    <div class="section-heading" style="margin-top:1rem;">
+        <h2>@Lang.T(Context, "رزرو پرواز", "Book flight") @Lang.Fin(Context, flight.Origin) @Lang.T(Context, "به", "to") @Lang.Fin(Context, flight.distination)</h2>
+        <p>@Lang.Num(Context, flight.startdate.ToString("yyyy-MM-dd")) — @Lang.FlightClass(Context, flight.flightClass)</p>
+    </div>
+
+    <div class="booking-steps">
+        <div class="booking-step is-active">
+            <div class="booking-step-circle">@Lang.T(Context, "۱", "1")</div>
+            <div class="booking-step-label">@Lang.T(Context, "اطلاعات رزرو", "Booking info")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۲", "2")</div>
+            <div class="booking-step-label">@Lang.T(Context, "پیش‌نمایش", "Preview")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۳", "3")</div>
+            <div class="booking-step-label">@Lang.T(Context, "پرداخت", "Payment")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۴", "4")</div>
+            <div class="booking-step-label">@Lang.T(Context, "نتیجه", "Result")</div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="table-wrap booking-summary-card">
+                <h3>@Lang.T(Context, "خلاصه پرواز", "Flight summary")</h3>
+                <dl class="detail-list">
+                    <dt>@Lang.T(Context, "مبدا", "Origin")</dt>
+                    <dd>@Lang.Fin(Context, flight.Origin)</dd>
+                    <dt>@Lang.T(Context, "مقصد", "Destination")</dt>
+                    <dd>@Lang.Fin(Context, flight.distination)</dd>
+                    <dt>@Lang.T(Context, "تاریخ رفت", "Departure date")</dt>
+                    <dd>@Lang.Num(Context, flight.startdate.ToString("yyyy-MM-dd"))</dd>
+                    <dt>@Lang.T(Context, "ساعت رفت", "Departure time")</dt>
+                    <dd>@Lang.Num(Context, flight.entrytime.ToString("HH:mm"))</dd>
+                    <dt>@Lang.T(Context, "کلاس پرواز", "Flight class")</dt>
+                    <dd>@Lang.FlightClass(Context, flight.flightClass)</dd>
+                    <dt>@Lang.T(Context, "قیمت هر صندلی", "Price per seat")</dt>
+                    <dd>@flight.price.ToString("N0") @Lang.T(Context, "تومان", "Toman")</dd>
+                    <dt>@Lang.T(Context, "ظرفیت باقی‌مانده", "Remaining seats")</dt>
+                    <dd>@remaining @Lang.T(Context, "صندلی", "seats")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="table-wrap admin-form-wrap">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <form asp-action="Reserve" method="post" class="row g-3">
+                    <input type="hidden" asp-for="Flight_Id" value="@flight.Flight_Id" />
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="SeatCount">@Lang.T(Context, "تعداد صندلی", "Seat count")</label>
+                        <input asp-for="SeatCount" type="number" class="form-control" min="1" max="@remaining" />
+                        <span asp-validation-for="SeatCount" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="FullName">@Lang.T(Context, "نام و نام خانوادگی", "Full name")</label>
+                        <input asp-for="FullName" class="form-control" placeholder="@Lang.T(Context, "مثلا علی رضایی", "e.g. John Smith")" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="PhoneNumber">@Lang.T(Context, "شماره موبایل", "Phone number")</label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="09121234567" dir="ltr" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="Note">@Lang.T(Context, "توضیحات / درخواست خاص", "Notes / special request")</label>
+                        <textarea asp-for="Note" class="form-control" rows="3" placeholder="@Lang.T(Context, "در صورت وجود درخواست خاص بنویسید", "Write any special requests here")"></textarea>
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="booking-live-total">
+                            <span>@Lang.T(Context, "مبلغ تقریبی:", "Approximate total:") </span>
+                            <strong id="liveTotal" class="booking-total">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-12 admin-form-actions">
+                        <input type="submit" value="@Lang.T(Context, "ادامه و مشاهده پیش‌نمایش سفارش", "Continue to order preview")" class="btn btn-brand" />
+                        <a asp-controller="Flightsshow" asp-action="Index" class="btn btn-outline-secondary">@Lang.T(Context, "انصراف", "Cancel")</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            var seatInput = document.getElementById('SeatCount');
+            var liveTotal = document.getElementById('liveTotal');
+            var pricePerSeat = @flight.price.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            function recalc() {
+                var seats = parseInt(seatInput.value, 10);
+                if (!seats || seats <= 0) { liveTotal.textContent = '—'; return; }
+                var total = seats * pricePerSeat;
+                var isEn = document.documentElement.lang === 'en';
+                liveTotal.textContent = seats + (isEn ? ' seats \u2014 ' : ' \u0635\u0646\u062f\u0644\u06cc \u2014 ') + total.toLocaleString('en-US') + (isEn ? ' Toman' : ' \u062a\u0648\u0645\u0627\u0646');
+            }
+
+            if (seatInput) {
+                seatInput.addEventListener('input', recalc);
+                recalc();
+            }
+        })();
+    </script>
+}

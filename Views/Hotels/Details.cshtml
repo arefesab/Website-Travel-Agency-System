@@ -1,0 +1,141 @@
+﻿@model agancywebProject.Models.DB.Hotel
+
+@{
+    ViewData["Title"] = Lang.T(Context, "جزئیات هتل", "Hotel Details");
+    var roomPhotos = (Model.roomPhotoUrls ?? string.Empty)
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(p => Url.Content(p))
+        .ToArray();
+    var photos = (Model.photoUrls ?? string.Empty)
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(p => Url.Content(p))
+        .ToArray();
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "جزئیات هتل", "Hotel details")</h2>
+    </div>
+    <div class="table-wrap admin-form-wrap">
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "نام هتل", "Hotel name")</dt>
+            <dd>@Lang.Fin(Context, Model.name)</dd>
+
+            <dt>@Lang.T(Context, "استان", "City")</dt>
+            <dd>@Lang.Fin(Context, Model.city)</dd>
+
+            <dt>@Lang.T(Context, "تاریخ خالی بودن از", "Available from")</dt>
+            <dd>@Html.DisplayFor(model => model.startdate)</dd>
+
+            <dt>@Lang.T(Context, "تاریخ خالی بودن تا", "Available until")</dt>
+            <dd>@Html.DisplayFor(model => model.finishdate)</dd>
+
+            <dt>@Lang.T(Context, "قیمت (هر شب، تومان)", "Price (per night, Toman)")</dt>
+            <dd>@Html.DisplayFor(model => model.price)</dd>
+
+            <dt>@Lang.T(Context, "آدرس", "Address")</dt>
+            <dd>@Lang.Fin(Context, Model.address)</dd>
+
+            <dt>@Lang.T(Context, "ستاره", "Stars")</dt>
+            <dd>@Html.DisplayFor(model => model.star)</dd>
+
+            <dt>@Lang.T(Context, "وعده غذایی", "Meals")</dt>
+            <dd>@Lang.Meal(Context, Model.meal, Model.MealDisplay)</dd>
+
+            <dt>@Lang.T(Context, "نام اتاق", "Room name")</dt>
+            <dd>@Lang.Fin(Context, Model.roomName)</dd>
+
+            <dt>@Lang.T(Context, "ظرفیت اتاق (نفر)", "Room capacity (persons)")</dt>
+            <dd>@Html.DisplayFor(model => model.roomCapacity)</dd>
+
+            @if (!string.IsNullOrWhiteSpace(Model.description))
+            {
+                <dt>@Lang.T(Context, "توضیحات هتل", "Hotel description")</dt>
+                <dd>@Lang.Fin(Context, Model.description)</dd>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.amenities))
+            {
+                <dt>@Lang.T(Context, "امکانات هتل (هر خط یک مورد)", "Hotel amenities (one per line)")</dt>
+                <dd style="white-space:pre-line">@(Lang.IsEnglish(Context) ? string.Join("\n", (Model.amenities ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(a => Lang.Amenity(Context, a))) : Model.amenities)</dd>
+            }
+        </dl>
+
+        @{
+            var bookings = (List<agancywebProject.Models.DB.Booking>)(ViewBag.Bookings ?? new List<agancywebProject.Models.DB.Booking>());
+        }
+        <h3 id="bookings" class="mt-4 mb-2">@Lang.T(Context, "رزروهای این هتل", "Bookings for this hotel")</h3>
+        @if (bookings.Count == 0)
+        {
+            <p class="form-text-hint">@Lang.T(Context, "هنوز رزروی برای این هتل ثبت نشده است.", "No bookings have been made for this hotel yet.")</p>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-2">
+                @foreach (var b in bookings)
+                {
+                    <div class="table-wrap booking-summary-card" style="padding:.75rem 1rem;">
+                        <div class="d-flex justify-content-between flex-wrap gap-2">
+                            <span>@Lang.Num(Context, b.CheckIn.ToString("yyyy-MM-dd")) @Lang.T(Context, "تا", "to") @Lang.Num(Context, b.CheckOut.ToString("yyyy-MM-dd")) (@b.Nights @Lang.T(Context, "شب", "nights"))</span>
+                            @switch (b.Status)
+                            {
+                                case agancywebProject.Models.DB.BookingStatus.Paid:
+                                    <span class="status-pill status-pill-paid">@Lang.T(Context, "پرداخت‌شده", "Paid")</span>
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Locked:
+                                    if (b.IsLockExpired)
+                                    {
+                                        <span class="status-pill status-pill-failed">@Lang.T(Context, "منقضی‌شده (پرداخت انجام نشد)", "Expired (not paid)")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill status-pill-pending">@Lang.T(Context, "در حال پرداخت", "Payment in progress")</span>
+                                    }
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Pending:
+                                    <span class="status-pill status-pill-pending">@Lang.T(Context, "در انتظار پرداخت", "Awaiting payment")</span>
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Failed:
+                                    <span class="status-pill status-pill-failed">@Lang.T(Context, "ناموفق", "Failed")</span>
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Cancelled:
+                                    <span class="status-pill status-pill-failed">@Lang.T(Context, "لغو شده", "Cancelled")</span>
+                                    break;
+                            }
+                        </div>
+                        <div class="form-text-hint mt-1">@b.FullName — @b.PhoneNumber</div>
+                        <div class="mt-1">
+                            <a asp-controller="AdminBookings" asp-action="EditHotel" asp-route-id="@b.Booking_Id">@Lang.T(Context, "ویرایش رزرو", "Edit booking")</a> |
+                            <a asp-controller="AdminBookings" asp-action="DeleteHotel" asp-route-id="@b.Booking_Id">@Lang.T(Context, "حذف رزرو", "Delete booking")</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        @if (photos.Length > 0)
+        {
+            <h3 class="mt-4 mb-2">@Lang.T(Context, "عکس‌های هتل", "Hotel photos")</h3>
+            <div class="hotel-gallery-grid mt-3">
+                @foreach (var url in photos)
+                {
+                    <img src="@url" alt="@Lang.Fin(Context, Model.name)" loading="lazy" />
+                }
+            </div>
+        }
+        @if (roomPhotos.Length > 0)
+        {
+            <h3 class="mt-4 mb-2">@Lang.T(Context, "عکس‌های اتاق", "Room photos")</h3>
+            <div class="hotel-gallery-grid mt-3">
+                @foreach (var url in roomPhotos)
+                {
+                    <img src="@url" alt="@Lang.Fin(Context, Model.roomName)" loading="lazy" />
+                }
+            </div>
+        }
+    </div>
+    <div class="mt-3 admin-form-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.Hotel_Id" class="btn btn-brand">@Lang.T(Context, "ویرایش", "Edit")</a>
+        <a asp-action="Index" class="admin-back-link">→ @Lang.T(Context, "بازگشت به لیست هتل‌ها", "Back to hotels")</a>
+    </div>
+</div>

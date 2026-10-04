@@ -1,0 +1,131 @@
+﻿@model agancywebProject.Models.DB.Hotel
+
+@{
+    ViewData["Title"] = Lang.Fin(Context, Model.name);
+    var photos = (Model.photoUrls ?? string.Empty)
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(p => Url.Content(p))
+        .ToArray();
+    var roomPhotos = (Model.roomPhotoUrls ?? string.Empty)
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(p => Url.Content(p))
+        .ToArray();
+}
+
+<div class="page-container">
+    <div class="tour-breadcrumb hotel-breadcrumb">
+        <a asp-action="Index">@Lang.T(Context, "لیست هتل‌ها", "Hotels")</a>
+        <span>›</span>
+        @Lang.Fin(Context, Model.name)
+    </div>
+
+    <div class="section-heading" style="margin-top: 1rem;">
+        <h2>@Lang.Fin(Context, Model.name)</h2>
+        <p>@Lang.Fin(Context, Model.city) @if (Model.star > 0)
+            {
+                <span class="star-badge">— @Model.star @Lang.T(Context, "ستاره", "stars")</span>
+            }
+        </p>
+    </div>
+
+    @if (photos.Length == 0 && roomPhotos.Length == 0)
+    {
+        <div class="hotel-detail-hero hotel-detail-hero-single mb-3">
+            <partial name="_NoPhoto" view-data='new ViewDataDictionary(ViewData) { { "Class", "no-photo-lg" } }' />
+        </div>
+    }
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+        @if (roomPhotos.Length > 0)
+        {
+            <h3 class="photo-section-title">@Lang.T(Context, "عکس‌های اتاق", "Room photos")</h3>
+            <div class="mb-3">
+                <partial name="_PhotoCarousel" model="roomPhotos" view-data='new ViewDataDictionary(ViewData) { { "Alt", Lang.Fin(Context, Model.roomName) } }' />
+            </div>
+        }
+
+            <div class="explaination">
+                <h2>@Lang.T(Context, "جزئیات اتاق و بازه رزرو", "Room details & booking period")</h2>
+                <dl class="detail-list mt-3">
+                    <dt>@Lang.T(Context, "نام اتاق", "Room name")</dt>
+                    <dd>@Lang.Fin(Context, Model.roomName)</dd>
+
+                    <dt>@Lang.T(Context, "ظرفیت اتاق (نفر)", "Room capacity")</dt>
+                    <dd>@Model.roomCapacity @Lang.T(Context, "نفر", "persons")</dd>
+
+                    <dt>@Lang.T(Context, "وعده غذایی", "Meals")</dt>
+                    <dd>@Lang.Meal(Context, Model.meal, Model.MealDisplay)</dd>
+
+                    <dt>@Lang.T(Context, "تاریخ خالی بودن از", "Available from")</dt>
+                    <dd>@Html.DisplayFor(model => model.startdate)</dd>
+
+                    <dt>@Lang.T(Context, "تاریخ خالی بودن تا", "Available until")</dt>
+                    <dd>@Html.DisplayFor(model => model.finishdate)</dd>
+                </dl>
+            </div>
+
+            <div class="explaination mt-3">
+                <h2>@Lang.T(Context, "درباره هتل", "About the hotel")</h2>
+                @if (!string.IsNullOrWhiteSpace(Model.description))
+                {
+                    <p>@Lang.Fin(Context, Model.description)</p>
+                }
+                else
+                {
+                    <p>@Lang.T(Context, "توضیحاتی برای این هتل ثبت نشده است.", "No description has been provided for this hotel.")</p>
+                }
+                <dl class="detail-list mt-3">
+                    <dt>@Lang.T(Context, "آدرس", "Address")</dt>
+                    <dd>@Lang.Fin(Context, Model.address)</dd>
+
+                    <dt>@Lang.T(Context, "شهر", "City")</dt>
+                    <dd>@Lang.Fin(Context, Model.city)</dd>
+
+                    @if (Model.star > 0)
+                    {
+                        <dt>@Lang.T(Context, "درجه هتل", "Hotel rating")</dt>
+                        <dd>@Model.star @Lang.T(Context, "ستاره", "stars")</dd>
+                    }
+                </dl>
+
+                @{
+                    var amenityList = (Model.amenities ?? string.Empty)
+                        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                }
+                @if (amenityList.Length > 0)
+                {
+                    <h3 class="mt-4 mb-2 hotel-amenities-title">@Lang.T(Context, "امکانات هتل", "Hotel amenities")</h3>
+                    <ul class="hotel-amenities-list">
+                        @foreach (var a in amenityList)
+                        {
+                            <li>@Lang.Amenity(Context, a)</li>
+                        }
+                    </ul>
+                }
+            </div>
+        @if (photos.Length > 0)
+        {
+            <h3 class="photo-section-title">@Lang.T(Context, "عکس‌های هتل", "Hotel photos")</h3>
+            <div class="mb-3">
+                <partial name="_PhotoCarousel" model="photos" view-data='new ViewDataDictionary(ViewData) { { "Alt", Lang.Fin(Context, Model.name) } }' />
+            </div>
+        }
+        </div>
+        <div class="col-lg-4">
+            <div class="tour-cta-card">
+                <h3>🏨 @Lang.T(Context, "رزرو این هتل", "Book this hotel")</h3>
+                @{ var dPct = (ViewBag.DiscountPercent as int?) ?? 0; }
+                <p>@Lang.T(Context, "قیمت هر شب:", "Price per night:")
+                    @if (dPct > 0) { <span class="off-chip">@dPct%</span> <s class="deal-old">@Model.price.ToString("N0")</s> }
+                    <strong class="booking-total">@HotelPricing.Apply(Model.price, dPct).ToString("N0")</strong> @Lang.T(Context, "تومان", "Toman")</p>
+                <a asp-controller="Booking" asp-action="Reserve" asp-route-id="@Model.Hotel_Id" class="btn btn-brand w-100">@Lang.T(Context, "رزرو و پرداخت آنلاین ←", "Book & pay online →")</a>
+                <a asp-action="Index" class="btn btn-outline-brand-light w-100 mt-2">@Lang.T(Context, "بازگشت به لیست هتل‌ها", "Back to hotels")</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/photo-carousel.js" asp-append-version="true"></script>
+}

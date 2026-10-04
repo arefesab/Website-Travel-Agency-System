@@ -1,0 +1,93 @@
+﻿@model agancywebProject.Models.DB.Flight
+
+@{
+    ViewData["Title"] = Lang.T(Context, "جزئیات پرواز", "Flight Details");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "جزئیات پرواز", "Flight details")</h2>
+    </div>
+    <div class="table-wrap admin-form-wrap">
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "مبدا", "Origin")</dt>
+            <dd>@Lang.Fin(Context, Model.Origin)</dd>
+
+            <dt>@Lang.T(Context, "مقصد", "Destination")</dt>
+            <dd>@Lang.Fin(Context, Model.distination)</dd>
+
+            <dt>@Lang.T(Context, "تاریخ رفت", "Departure date")</dt>
+            <dd>@Html.DisplayFor(model => model.startdate)</dd>
+
+            <dt>@Lang.T(Context, "قیمت", "Price")</dt>
+            <dd>@Html.DisplayFor(model => model.price)</dd>
+
+            <dt>@Lang.T(Context, "ظرفیت", "Capacity")</dt>
+            <dd>@Html.DisplayFor(model => model.capacity)</dd>
+
+            <dt>@Lang.T(Context, "ساعت رفت", "Departure time")</dt>
+            <dd>@Html.DisplayFor(model => model.entrytime)</dd>
+
+            <dt>@Lang.T(Context, "کلاس پرواز", "Flight class")</dt>
+            <dd>@Lang.FlightClass(Context, Model.flightClass)</dd>
+        </dl>
+    </div>
+
+    @{
+        var bookings = (List<agancywebProject.Models.DB.FlightBooking>)(ViewBag.Bookings ?? new List<agancywebProject.Models.DB.FlightBooking>());
+    }
+    <div class="table-wrap admin-form-wrap mt-3">
+        <h3 id="bookings" class="mt-0 mb-2">@Lang.T(Context, "رزروهای این پرواز", "Bookings for this flight")</h3>
+        @if (bookings.Count == 0)
+        {
+            <p class="form-text-hint">@Lang.T(Context, "هنوز رزروی برای این پرواز ثبت نشده است.", "No bookings have been made for this flight yet.")</p>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-2">
+                @foreach (var b in bookings)
+                {
+                    <div class="table-wrap booking-summary-card" style="padding:.75rem 1rem;">
+                        <div class="d-flex justify-content-between flex-wrap gap-2">
+                            <span>@b.SeatCount @Lang.T(Context, "صندلی", "seats") — @b.TotalPrice.ToString("N0") @Lang.T(Context, "تومان", "Toman")</span>
+                            @switch (b.Status)
+                            {
+                                case agancywebProject.Models.DB.BookingStatus.Paid:
+                                    <span class="status-pill status-pill-paid">@Lang.T(Context, "پرداخت‌شده", "Paid")</span>
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Locked:
+                                    if (b.IsLockExpired)
+                                    {
+                                        <span class="status-pill status-pill-failed">@Lang.T(Context, "منقضی‌شده (پرداخت انجام نشد)", "Expired (not paid)")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill status-pill-pending">@Lang.T(Context, "در حال پرداخت", "Payment in progress")</span>
+                                    }
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Pending:
+                                    <span class="status-pill status-pill-pending">@Lang.T(Context, "در انتظار پرداخت", "Awaiting payment")</span>
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Failed:
+                                    <span class="status-pill status-pill-failed">@Lang.T(Context, "ناموفق", "Failed")</span>
+                                    break;
+                                case agancywebProject.Models.DB.BookingStatus.Cancelled:
+                                    <span class="status-pill status-pill-failed">@Lang.T(Context, "لغو شده", "Cancelled")</span>
+                                    break;
+                            }
+                        </div>
+                        <div class="form-text-hint mt-1">@b.FullName — @b.PhoneNumber</div>
+                        <div class="mt-1">
+                            <a asp-controller="AdminBookings" asp-action="EditFlight" asp-route-id="@b.FlightBooking_Id">@Lang.T(Context, "ویرایش رزرو", "Edit booking")</a> |
+                            <a asp-controller="AdminBookings" asp-action="DeleteFlight" asp-route-id="@b.FlightBooking_Id">@Lang.T(Context, "حذف رزرو", "Delete booking")</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <div class="mt-3 admin-form-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.Flight_Id" class="btn btn-brand">@Lang.T(Context, "ویرایش", "Edit")</a>
+        <a asp-action="Index" class="admin-back-link">→ @Lang.T(Context, "بازگشت به لیست پروازها", "Back to flights")</a>
+    </div>
+</div>

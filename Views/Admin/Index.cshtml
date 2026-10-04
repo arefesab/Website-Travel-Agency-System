@@ -1,0 +1,42 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = Lang.T(Context, "پنل مدیریت", "Admin Panel");
+}
+
+<div class="admindesign admindesign-wide">
+    <h1>@Lang.T(Context, "خوش آمدید،", "Welcome,") @User.Identity?.Name</h1>
+    <p class="admin-sub">@Lang.T(Context, "از این پنل می‌توانید پروازها، هتل‌ها و رزروهای سایت را مدیریت کنید.", "From this panel you can manage the site's flights, hotels and bookings.")</p>
+
+    <div class="admin-grid">
+        <div class="admin-tile">
+            <span class="admin-tile-icon">✈</span>
+            <h2>@Lang.T(Context, "پروازها", "Flights")</h2>
+            <p>@Lang.T(Context, "افزودن، ویرایش یا حذف پرواز‌های موجود در سایت", "Add, edit, or delete flights on the site")</p>
+            <div class="admin-tile-actions">
+                <a asp-controller="Flights" asp-action="Create" class="btn btn-brand w-100">+ @Lang.T(Context, "افزودن پرواز جدید", "Add new flight")</a>
+                <a asp-controller="Flights" asp-action="Index" class="btn btn-outline-brand-light w-100 mt-2">@Lang.T(Context, "مشاهده پروازهای موجود", "View existing flights")</a>
+            </div>
+        </div>
+        <div class="admin-tile">
+            <span class="admin-tile-icon">🏨</span>
+            <h2>@Lang.T(Context, "هتل‌ها", "Hotels")</h2>
+            <p>@Lang.T(Context, "افزودن، ویرایش یا حذف هتل‌های موجود در سایت", "Add, edit, or delete hotels on the site")</p>
+            <div class="admin-tile-actions">
+                <a asp-controller="Hotels" asp-action="Create" class="btn btn-brand w-100">+ @Lang.T(Context, "افزودن هتل جدید", "Add new hotel")</a>
+                <a asp-controller="Hotels" asp-action="Index" class="btn btn-outline-brand-light w-100 mt-2">@Lang.T(Context, "مشاهده هتل‌های موجود", "View existing hotels")</a>
+            </div>
+        </div>
+        <div class="admin-tile admin-tile-wide">
+            <span class="admin-tile-icon">📋</span>
+            <h2>@Lang.T(Context, "رزروها", "Bookings")</h2>
+            <p>@Lang.T(Context, "مشاهده، ویرایش یا حذف رزروهای هتل و پرواز", "View, edit, or delete hotel and flight bookings")</p>
+            <div class="admin-tile-actions">
+                <a asp-controller="AdminBookings" asp-action="Index" class="btn btn-brand w-100">@Lang.T(Context, "مدیریت رزروها", "Manage bookings")</a>
+                <a asp-controller="AdminBookings" asp-action="Index" asp-route-type="hotel" class="btn btn-outline-brand-light w-100 mt-2">@Lang.T(Context, "رزروهای هتل", "Hotel bookings")</a>
+                <a asp-controller="AdminBookings" asp-action="Index" asp-route-type="flight" class="btn btn-outline-brand-light w-100 mt-2">@Lang.T(Context, "رزروهای پرواز", "Flight bookings")</a>
+            </div>
+        </div>
+    </div>
+
+    <a asp-controller="Admin" asp-action="Logout" class="admin-logout">@Lang.T(Context, "خروج از حساب ادمین", "Log out")</a>
+</div>

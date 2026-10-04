@@ -1,0 +1,275 @@
+﻿@model IEnumerable<agancywebProject.Models.DB.Flight>
+
+@{
+    ViewData["Title"] = Lang.T(Context, "لیست پروازها", "Flights");
+}
+@{
+    bool isFiltered = ViewBag.IsFiltered ?? false;
+    bool needsDate = ViewBag.NeedsDate ?? false;
+    string? curOrigin = ViewBag.Origin;
+    string? curDestination = ViewBag.Destination;
+    string? curDate = ViewBag.Date;
+    string curTripType = ViewBag.TripType ?? "oneway";
+    string? curReturnDate = ViewBag.ReturnDate;
+    int? curPassengers = ViewBag.Passengers;
+    string? dateError = ViewBag.DateError;
+    var returnFlights = (ViewBag.ReturnFlights as IEnumerable<agancywebProject.Models.DB.Flight>) ?? Enumerable.Empty<agancywebProject.Models.DB.Flight>();
+    bool isRoundTrip = curTripType == "roundtrip";
+    var cities = (ViewBag.FlightOrigins as List<string>) ?? new List<string>();
+    var destinations = (ViewBag.FlightDestinations as List<string>) ?? new List<string>();
+    var bookedSeats = (ViewBag.BookedSeats as Dictionary<int, int>) ?? new Dictionary<int, int>();
+
+    int RemainingSeats(agancywebProject.Models.DB.Flight f)
+    {
+        var booked = bookedSeats.TryGetValue(f.Flight_Id, out var s) ? s : 0;
+        return f.capacity - booked;
+    }
+}
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "لیست پرواز‌ها", "Flights")</h2>
+        <p>@Lang.T(Context, "پروازهای موجود داخلی و خارجی را جستجو و رزرو کنید", "Search and book available domestic and international flights")</p>
+    </div>
+
+    @{ string? flightError = ViewBag.Error as string; }
+    @if (!string.IsNullOrWhiteSpace(flightError))
+    {
+        <div class="alert alert-danger">@flightError</div>
+    }
+
+    <div class="table-wrap mb-3">
+        <form asp-controller="Flightsshow" asp-action="Index" method="get" class="row g-3 align-items-end" id="flight-search-form">
+            <div class="col-12">
+                <label class="switch-row" for="fs-roundtrip">
+                    <span class="switch">
+                        <input type="checkbox" id="fs-roundtrip" name="tripType" value="roundtrip" checked="@isRoundTrip" />
+                        <span class="slider"></span>
+                    </span>
+                    <span class="switch-label-text">@Lang.T(Context, "پرواز رفت و برگشت می‌خواهم", "I want a round-trip flight")</span>
+                </label>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="fs-origin">@Lang.T(Context, "مبدا", "Origin")</label>
+                <select id="fs-origin" name="origin" class="form-select">
+                    <option value="">@Lang.T(Context, "همه مبدا‌ها", "All origins")</option>
+                    @foreach (var c in cities)
+                    {
+                        <option value="@c" selected="@(c == curOrigin)">@Lang.Fin(Context, c)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="fs-destination">@Lang.T(Context, "مقصد", "Destination")</label>
+                <select id="fs-destination" name="destination" class="form-select">
+                    <option value="">@Lang.T(Context, "همه مقصدها", "All destinations")</option>
+                    @foreach (var d in destinations)
+                    {
+                        <option value="@d" selected="@(d == curDestination)">@Lang.Fin(Context, d)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="fs-date">@Lang.T(Context, "تاریخ رفت", "Departure date") <span class="text-danger">*</span></label>
+                <input id="fs-date" type="date" name="date" value="@curDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="col-md-2" id="fs-returndate-wrap" style="@(isRoundTrip ? "" : "display:none;")">
+                <label class="form-label" for="fs-returndate">@Lang.T(Context, "تاریخ برگشت", "Return date") <span class="text-danger">*</span></label>
+                <input id="fs-returndate" type="date" name="returnDate" value="@curReturnDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="fs-passengers">@Lang.T(Context, "مسافر", "Passengers")</label>
+                <input id="fs-passengers" type="number" min="1" name="passengers" value="@curPassengers" class="form-control" />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-brand w-100">@Lang.T(Context, "جستجو", "Search")</button>
+            </div>
+            <div class="col-12">
+                <p class="search-hint">@Lang.T(Context, "برای جستجو وارد کردن تاریخ رفت الزامی است.", "A departure date is required to search.")</p>
+            </div>
+        </form>
+        @if (isFiltered)
+        {
+            <div class="mt-2">
+                <a asp-controller="Flightsshow" asp-action="Index" class="filter-clear">✕ @Lang.T(Context, "پاک کردن فیلترها", "Clear filters")</a>
+            </div>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(dateError))
+    {
+        <div class="alert alert-danger">@dateError</div>
+    }
+
+    @if (needsDate)
+    {
+        <div class="empty-state">
+            <p>@Lang.T(Context, "برای مشاهده پروازها، لطفاً تاریخ رفت را انتخاب کنید.", "Please select a departure date to view flights.")</p>
+        </div>
+    }
+    else
+    {
+        @if (isRoundTrip)
+        {
+            <div class="results-subheading">@Lang.T(Context, "پروازهای رفت", "Outbound flights")</div>
+        }
+        <div class="table-wrap">
+            <div class="list-toolbar">
+                <input type="text" class="list-search" placeholder="@Lang.T(Context, "جستجو در پروازها (مبدا، مقصد، تاریخ...)", "Search flights (origin, destination, date...)")" />
+                <span class="list-count"></span>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>@Lang.T(Context, "مبدا", "Origin")</th>
+                            <th>@Lang.T(Context, "مقصد", "Destination")</th>
+                            <th>@Lang.T(Context, "تاریخ رفت", "Departure date")</th>
+                            <th>@Lang.T(Context, "قیمت", "Price")</th>
+                            <th>@Lang.T(Context, "ظرفیت", "Capacity")</th>
+                            <th>@Lang.T(Context, "ساعت رفت", "Departure time")</th>
+                            <th>@Lang.T(Context, "کلاس پرواز", "Flight class")</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Lang.Fin(Context, item.Origin)</td>
+                                <td>@Lang.Fin(Context, item.distination)</td>
+                                <td>@Html.DisplayFor(modelItem => item.startdate)</td>
+                                <td>@Html.DisplayFor(modelItem => item.price)</td>
+                                <td>@Html.DisplayFor(modelItem => item.capacity)</td>
+                                <td>@Html.DisplayFor(modelItem => item.entrytime)</td>
+                                <td>@Lang.FlightClass(Context, item.flightClass)</td>
+                                <td>
+                                    @{
+                                        var remaining = RemainingSeats(item);
+                                    }
+                                    @if (remaining > 0)
+                                    {
+                                        <a asp-controller="FlightBooking" asp-action="Reserve" asp-route-id="@item.Flight_Id" class="btnstyle">@Lang.T(Context, "رزرو", "Book")</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill status-pill-failed">@Lang.T(Context, "تکمیل", "Sold out")</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    @if (isFiltered)
+                    {
+                        <p>@Lang.T(Context, "پروازی با این مشخصات پیدا نشد.", "No flights found matching your criteria.")</p>
+                        <a asp-controller="Flightsshow" asp-action="Index" class="filter-clear">✕ @Lang.T(Context, "پاک کردن فیلترها و مشاهده همه پروازها", "Clear filters and view all flights")</a>
+                    }
+                    else
+                    {
+                        <p>@Lang.T(Context, "در حال حاضر پروازی برای نمایش وجود ندارد.", "There are no flights to show right now.")</p>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (isRoundTrip && !string.IsNullOrWhiteSpace(curReturnDate))
+        {
+            <div class="results-subheading">@Lang.T(Context, "پروازهای برگشت", "Return flights")</div>
+            <div class="table-wrap">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>@Lang.T(Context, "مبدا", "Origin")</th>
+                                <th>@Lang.T(Context, "مقصد", "Destination")</th>
+                                <th>@Lang.T(Context, "تاریخ رفت", "Departure date")</th>
+                                <th>@Lang.T(Context, "قیمت", "Price")</th>
+                                <th>@Lang.T(Context, "ظرفیت", "Capacity")</th>
+                                <th>@Lang.T(Context, "ساعت رفت", "Departure time")</th>
+                                <th>@Lang.T(Context, "کلاس پرواز", "Flight class")</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in returnFlights)
+                            {
+                                <tr>
+                                    <td>@Lang.Fin(Context, item.Origin)</td>
+                                    <td>@Lang.Fin(Context, item.distination)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.startdate)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.price)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.capacity)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.entrytime)</td>
+                                    <td>@Lang.FlightClass(Context, item.flightClass)</td>
+                                    <td>
+                                        @{
+                                            var returnRemaining = RemainingSeats(item);
+                                        }
+                                        @if (returnRemaining > 0)
+                                        {
+                                            <a asp-controller="FlightBooking" asp-action="Reserve" asp-route-id="@item.Flight_Id" class="btnstyle">@Lang.T(Context, "رزرو", "Book")</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-pill status-pill-failed">@Lang.T(Context, "تکمیل", "Sold out")</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (!returnFlights.Any())
+                {
+                    <div class="empty-state">
+                        <p>@Lang.T(Context, "پروازی برای برگشت با این مشخصات پیدا نشد.", "No return flights found matching your criteria.")</p>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var roundtripSwitch = document.getElementById('fs-roundtrip');
+            var returnWrap = document.getElementById('fs-returndate-wrap');
+            var returnInput = document.getElementById('fs-returndate');
+            var dateInput = document.getElementById('fs-date');
+
+            function syncReturnDate() {
+                var isRoundTrip = roundtripSwitch.checked;
+                returnWrap.style.display = isRoundTrip ? '' : 'none';
+                if (returnInput) {
+                    returnInput.required = isRoundTrip;
+                    if (!isRoundTrip) {
+                        returnInput.value = '';
+                    }
+                }
+            }
+
+            function syncMinReturnDate() {
+                if (dateInput && dateInput.value && returnInput) {
+                    returnInput.min = dateInput.value;
+                    if (returnInput.value && returnInput.value <= dateInput.value) {
+                        returnInput.value = '';
+                    }
+                }
+            }
+
+            if (roundtripSwitch) {
+                roundtripSwitch.addEventListener('change', syncReturnDate);
+                syncReturnDate();
+            }
+            if (dateInput) {
+                dateInput.addEventListener('change', syncMinReturnDate);
+                syncMinReturnDate();
+            }
+        })();
+    </script>
+}

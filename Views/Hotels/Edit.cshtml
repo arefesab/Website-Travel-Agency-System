@@ -1,0 +1,172 @@
+﻿@model agancywebProject.Models.DB.Hotel
+
+@{
+    ViewData["Title"] = Lang.T(Context, "ویرایش هتل", "Edit Hotel");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "ویرایش هتل", "Edit hotel")</h2>
+        <p>@Lang.T(Context, "اطلاعات این هتل را به‌روزرسانی کنید", "Update this hotel's details")</p>
+    </div>
+
+    <div class="table-wrap admin-form-wrap">
+        <form asp-action="Edit" class="row g-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger col-12"></div>
+            <input type="hidden" asp-for="Hotel_Id" />
+            <div class="col-md-6">
+                <label asp-for="name" class="form-label">@Lang.T(Context, "نام هتل", "Hotel name")</label>
+                <input type="hidden" asp-for="name" />
+                <select id="hotelNameSelect" class="form-select">
+                    <option value="">@Lang.T(Context, "— انتخاب کنید —", "— Select —")</option>
+                    @foreach (var n in (List<string>)(ViewBag.HotelNames ?? new List<string>()))
+                    {
+                        <option value="@n">@Lang.Fin(Context, n)</option>
+                    }
+                    <option value="__new__">+ @Lang.T(Context, "افزودن نام هتل جدید", "Add new hotel name")</option>
+                </select>
+                <div id="hotelNameNewWrap" class="mt-2" style="display:none">
+                    <input type="text" id="hotelNameNew" class="form-control" placeholder="@Lang.T(Context, "نام هتل جدید را وارد کنید", "Enter the new hotel name")" />
+                </div>
+                <span asp-validation-for="name" class="text-danger"></span>
+            </div>
+            <script type="application/json" id="hotelNameCityMap">@Html.Raw(ViewBag.HotelNameCityMapJson ?? "{}")</script>
+            <div class="col-md-6">
+                <label asp-for="city" class="form-label">@Lang.T(Context, "استان", "City")</label>
+                <input type="hidden" asp-for="city" />
+                <select id="hotelCitySelect" class="form-select">
+                    <option value="">@Lang.T(Context, "— انتخاب کنید —", "— Select —")</option>
+                    <option value="__new__">+ @Lang.T(Context, "افزودن استان جدید", "Add new city")</option>
+                </select>
+                <div id="hotelCityNewWrap" class="mt-2" style="display:none">
+                    <input type="text" id="hotelCityNew" class="form-control" placeholder="@Lang.T(Context, "نام استان جدید را وارد کنید", "Enter the new city name")" />
+                </div>
+                <div class="form-text-hint">@Lang.T(Context, "برای هتل‌های زنجیره‌ای، با انتخاب نام هتل، استان قبلی آن به‌صورت پیشنهادی انتخاب می‌شود؛ در صورت نیاز خودتان استان دیگری را انتخاب کنید.", "For chain hotels, selecting the hotel name will suggest its previous city; change it if needed.")</div>
+                <span asp-validation-for="city" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="startdate" class="form-label">@Lang.T(Context, "تاریخ خالی بودن از", "Available from")</label>
+                <input asp-for="startdate" class="form-control" />
+                <span asp-validation-for="startdate" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="finishdate" class="form-label">@Lang.T(Context, "تاریخ خالی بودن تا", "Available until")</label>
+                <input asp-for="finishdate" class="form-control" />
+                <span asp-validation-for="finishdate" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="price" class="form-label">@Lang.T(Context, "قیمت (هر شب، تومان)", "Price (per night, Toman)")</label>
+                <input asp-for="price" type="text" class="form-control price-input" placeholder="0" />
+                <span asp-validation-for="price" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DiscountPercent" class="form-label">@Lang.T(Context, "درصد تخفیف (اختیاری)", "Discount % (optional)")</label>
+                <input asp-for="DiscountPercent" type="number" min="0" max="90" class="form-control" />
+                <span asp-validation-for="DiscountPercent" class="text-danger"></span>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="address" class="form-label">@Lang.T(Context, "آدرس", "Address")</label>
+                <input asp-for="address" class="form-control" />
+                <span asp-validation-for="address" class="text-danger"></span>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="star" class="form-label">@Lang.T(Context, "ستاره", "Stars")</label>
+                <input asp-for="star" class="form-control" min="1" max="5" />
+                <span asp-validation-for="star" class="text-danger"></span>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="meal" class="form-label">@Lang.T(Context, "وعده غذایی", "Meals")</label>
+                <input type="hidden" asp-for="meal" />
+                <div class="meal-checklist" id="mealChecklist">
+                    @foreach (var opt in agancywebProject.Models.DB.Hotel.MealOptions)
+                    {
+                        <label class="meal-check-item">
+                            <input type="checkbox" class="meal-option" value="@opt.Value" />
+                            <span>@Lang.T(Context, opt.Label, opt.Value == "breakfast" ? "Breakfast" : opt.Value == "lunch" ? "Lunch" : opt.Value == "dinner" ? "Dinner" : opt.Value == "snack" ? "Snack" : opt.Label)</span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="meal" class="text-danger"></span>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="roomName" class="form-label">@Lang.T(Context, "نام اتاق", "Room name")</label>
+                <input asp-for="roomName" class="form-control" />
+                <span asp-validation-for="roomName" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="roomCapacity" class="form-label">@Lang.T(Context, "ظرفیت اتاق (نفر)", "Room capacity (persons)")</label>
+                <input asp-for="roomCapacity" class="form-control" min="1" />
+                <span asp-validation-for="roomCapacity" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="description" class="form-label">@Lang.T(Context, "توضیحات هتل", "Hotel description")</label>
+                <textarea asp-for="description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="description" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="amenities" class="form-label">@Lang.T(Context, "امکانات هتل (هر خط یک مورد)", "Hotel amenities (one per line)")</label>
+                <textarea asp-for="amenities" class="form-control" rows="3" placeholder="@Lang.T(Context, "اینترنت رایگان&#10;استخر&#10;پارکینگ رایگان&#10;صبحانه بوفه", "Free Wi-Fi&#10;Pool&#10;Free parking&#10;Breakfast buffet")"></textarea>
+                <div class="form-text-hint">@Lang.T(Context, "هر امکان را در یک خط جداگانه بنویسید. این موارد در بخش «درباره هتل» به کاربر نمایش داده می‌شود.", "Write each amenity on its own line. These are shown to the user in the About the hotel section.")</div>
+                <span asp-validation-for="amenities" class="text-danger"></span>
+            </div>
+            <script type="application/json" id="hotelNamePhotosMap">@Html.Raw(ViewBag.HotelNamePhotosMapJson ?? "{}")</script>
+            <div class="col-12">
+                <label asp-for="photoUrls" class="form-label">@Lang.T(Context, "عکس‌های هتل (هر خط یک لینک)", "Hotel photos (one link per line)")</label>
+                <textarea asp-for="photoUrls" class="form-control" rows="4" placeholder="https://example.com/hotel1.jpg&#10;https://example.com/hotel2.jpg"></textarea>
+                <div class="form-text-hint">@Lang.T(Context, "با انتخاب نام هتل، عکس‌هایی که قبلاً برای همین هتل وارد شده به‌صورت پیش‌فرض گذاشته می‌شود؛ در صورت نیاز می‌توانید تغییر یا اضافه کنید. اولین عکس به‌عنوان تصویر اصلی هتل نمایش داده می‌شود.", "When you pick a hotel name, the photos entered earlier for that hotel are filled in by default; change or add more if needed. The first photo is shown as the hotel's main image.")</div>
+                <span asp-validation-for="photoUrls" class="text-danger"></span>
+                <div class="mt-2">
+                    <label for="hotelPhotoUpload" class="btn btn-outline-secondary btn-sm">📤 @Lang.T(Context, "آپلود عکس هتل از سیستم", "Upload hotel photos from device")</label>
+                    <input type="file" id="hotelPhotoUpload" accept="image/*" multiple class="d-none" data-photo-target="photoUrls" data-photo-status="hotelPhotoUploadStatus" />
+                    <span id="hotelPhotoUploadStatus" class="form-text-hint"></span>
+                </div>
+            </div>
+            <div class="col-12">
+                <label asp-for="roomPhotoUrls" class="form-label">@Lang.T(Context, "عکس‌های اتاق (هر خط یک لینک)", "Room photos (one link per line)")</label>
+                <textarea asp-for="roomPhotoUrls" class="form-control" rows="4" placeholder="https://example.com/room1.jpg&#10;https://example.com/room2.jpg"></textarea>
+                <div class="form-text-hint">@Lang.T(Context, "عکس‌های اتاق پیش‌فرض ندارند و برای هر اتاق باید جداگانه آپلود شوند.", "Room photos have no default; upload them separately for each room.")</div>
+                <span asp-validation-for="roomPhotoUrls" class="text-danger"></span>
+                <div class="mt-2">
+                    <label for="roomPhotoUpload" class="btn btn-outline-secondary btn-sm">📤 @Lang.T(Context, "آپلود عکس اتاق از سیستم", "Upload room photos from device")</label>
+                    <input type="file" id="roomPhotoUpload" accept="image/*" multiple class="d-none" data-photo-target="roomPhotoUrls" data-photo-status="roomPhotoUploadStatus" />
+                    <span id="roomPhotoUploadStatus" class="form-text-hint"></span>
+                </div>
+            </div>
+
+            <div class="col-12 admin-form-actions">
+                <input type="submit" value="@Lang.T(Context, "ذخیره تغییرات", "Save changes")" class="btn btn-brand" />
+                <a asp-action="Index" class="btn btn-outline-secondary">@Lang.T(Context, "انصراف", "Cancel")</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="admin-back-link">→ @Lang.T(Context, "بازگشت به لیست هتل‌ها", "Back to hotels")</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/price-format.js" asp-append-version="true"></script>
+    <script src="~/js/hotel-name-select.js" asp-append-version="true"></script>
+    <script src="~/js/hotel-city-select.js" asp-append-version="true"></script>
+    <script src="~/js/hotel-meal-select.js" asp-append-version="true"></script>
+    <script src="~/js/hotel-photo-upload.js" asp-append-version="true"></script>
+    <script src="~/js/hotel-photo-autofill.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var startInput = document.getElementById('startdate');
+            var endInput = document.getElementById('finishdate');
+            function syncMin() {
+                if (startInput && startInput.value) {
+                    endInput.min = startInput.value;
+                }
+            }
+            if (startInput && endInput) {
+                startInput.addEventListener('change', syncMin);
+                syncMin();
+            }
+        })();
+    </script>
+}

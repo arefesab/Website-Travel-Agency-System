@@ -1,0 +1,181 @@
+﻿@model agancywebProject.Models.DB.Booking
+@{
+    var hotel = (agancywebProject.Models.DB.Hotel)ViewBag.Hotel;
+    var bookedRanges = (List<agancywebProject.Models.DB.Booking>)(ViewBag.BookedRanges ?? new List<agancywebProject.Models.DB.Booking>());
+    ViewData["Title"] = Lang.T(Context, "رزرو ", "Book ") + Lang.Fin(Context, hotel.name);
+    var minDate = hotel.startdate.ToString("yyyy-MM-dd");
+    var maxDate = hotel.finishdate.ToString("yyyy-MM-dd");
+    // انتخاب تاریخ در گذشته مجاز نیست، حتی اگر بازه خالی‌بودن هتل از قبل شروع شده باشد.
+    var minSelectable = (hotel.startdate.Date > DateTime.Today ? hotel.startdate.Date : DateTime.Today).ToString("yyyy-MM-dd");
+}
+
+<div class="page-container">
+    <div class="tour-breadcrumb hotel-breadcrumb">
+        <a asp-controller="Hotelsshow" asp-action="Index">@Lang.T(Context, "لیست هتل‌ها", "Hotels")</a>
+        <span>›</span>
+        <a asp-controller="Hotelsshow" asp-action="Details" asp-route-id="@hotel.Hotel_Id">@Lang.Fin(Context, hotel.name)</a>
+        <span>›</span>
+        @Lang.T(Context, "رزرو", "Booking")
+    </div>
+
+    <div class="section-heading" style="margin-top:1rem;">
+        <h2>@Lang.T(Context, "رزرو", "Book") @Lang.Fin(Context, hotel.name)</h2>
+        <p>@Lang.Fin(Context, hotel.city) @if (hotel.star > 0) { <span>— @hotel.star @Lang.T(Context, "ستاره", "stars")</span> }</p>
+    </div>
+
+    <div class="booking-steps">
+        <div class="booking-step is-active">
+            <div class="booking-step-circle">@Lang.T(Context, "۱", "1")</div>
+            <div class="booking-step-label">@Lang.T(Context, "اطلاعات رزرو", "Booking info")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۲", "2")</div>
+            <div class="booking-step-label">@Lang.T(Context, "پیش‌نمایش", "Preview")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۳", "3")</div>
+            <div class="booking-step-label">@Lang.T(Context, "پرداخت", "Payment")</div>
+        </div>
+        <div class="booking-step-sep"></div>
+        <div class="booking-step">
+            <div class="booking-step-circle">@Lang.T(Context, "۴", "4")</div>
+            <div class="booking-step-label">@Lang.T(Context, "نتیجه", "Result")</div>
+        </div>
+    </div>
+
+    @if (TempData["BookingError"] is string bookingError && !string.IsNullOrWhiteSpace(bookingError))
+    {
+        <div class="alert alert-danger">@bookingError</div>
+    }
+
+    <div class="row g-3">
+        <div class="col-lg-5">
+            <div class="table-wrap booking-summary-card">
+                <h3>@Lang.T(Context, "خلاصه هتل", "Hotel summary")</h3>
+                <dl class="detail-list">
+                    <dt>@Lang.T(Context, "نام اتاق", "Room name")</dt>
+                    <dd>@Lang.Fin(Context, hotel.roomName)</dd>
+                    <dt>@Lang.T(Context, "وعده غذایی", "Meals")</dt>
+                    <dd>@Lang.Meal(Context, hotel.meal, hotel.MealDisplay)</dd>
+                    <dt>@Lang.T(Context, "بازه کلی خالی بودن", "Overall available period")</dt>
+                    <dd>@Lang.Num(Context, minDate) @Lang.T(Context, "تا", "to") @Lang.Num(Context, maxDate)</dd>
+                    <dt>@Lang.T(Context, "قیمت هر شب", "Price per night")</dt>
+                    <dd>
+                        @{ var rPct = (ViewBag.DiscountPercent as int?) ?? 0; }
+                        @if (rPct > 0) { <span class="off-chip">@rPct% @Lang.T(Context, "تخفیف", "OFF")</span> <s class="deal-old">@hotel.price.ToString("N0")</s> }
+                        @HotelPricing.Apply(hotel.price, rPct).ToString("N0") @Lang.T(Context, "تومان", "Toman")
+                    </dd>
+                </dl>
+            </div>
+
+            @if (bookedRanges.Any())
+            {
+                <div class="table-wrap booking-summary-card mt-3">
+                    <h3>@Lang.T(Context, "بازه‌های قبلا رزروشده", "Already booked periods")</h3>
+                    <p class="form-text-hint">@Lang.T(Context, "این بازه‌ها دیگر قابل انتخاب نیستند؛ بقیه روزهای بازه کلی بالا همچنان آزاد است.", "These periods can no longer be selected; the rest of the overall period above is still open.")</p>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        @foreach (var b in bookedRanges)
+                        {
+                            <span class="status-pill status-pill-failed">@Lang.Num(Context, b.CheckIn.ToString("yyyy-MM-dd")) @Lang.T(Context, "تا", "to") @Lang.Num(Context, b.CheckOut.ToString("yyyy-MM-dd"))</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-7">
+            <div class="table-wrap admin-form-wrap">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <form asp-action="Reserve" method="post" class="row g-3">
+                    <input type="hidden" asp-for="Hotel_Id" value="@hotel.Hotel_Id" />
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="CheckIn">@Lang.T(Context, "تاریخ ورود", "Check-in date")</label>
+                        <input asp-for="CheckIn" type="date" class="form-control" min="@minSelectable" max="@maxDate" />
+                        <span asp-validation-for="CheckIn" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="CheckOut">@Lang.T(Context, "تاریخ خروج", "Check-out date")</label>
+                        <input asp-for="CheckOut" type="date" class="form-control" min="@minSelectable" max="@maxDate" />
+                        <span asp-validation-for="CheckOut" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="FullName">@Lang.T(Context, "نام و نام خانوادگی", "Full name")</label>
+                        <input asp-for="FullName" class="form-control" placeholder="@Lang.T(Context, "مثلا علی رضایی", "e.g. John Smith")" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="PhoneNumber">@Lang.T(Context, "شماره موبایل", "Phone number")</label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="09121234567" dir="ltr" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="Note">@Lang.T(Context, "توضیحات / درخواست خاص", "Notes / special request")</label>
+                        <textarea asp-for="Note" class="form-control" rows="3" placeholder="@Lang.T(Context, "در صورت وجود درخواست خاص بنویسید", "Write any special requests here")"></textarea>
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="booking-live-total">
+                            <span>@Lang.T(Context, "مبلغ تقریبی:", "Approximate total:") </span>
+                            <strong id="liveTotal" class="booking-total">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-12 admin-form-actions">
+                        <input type="submit" value="@Lang.T(Context, "ادامه و مشاهده پیش‌نمایش سفارش", "Continue to order preview")" class="btn btn-brand" />
+                        <a asp-controller="Hotelsshow" asp-action="Details" asp-route-id="@hotel.Hotel_Id" class="btn btn-outline-secondary">@Lang.T(Context, "انصراف", "Cancel")</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            var checkInInput = document.getElementById('CheckIn');
+            var checkOutInput = document.getElementById('CheckOut');
+            var liveTotal = document.getElementById('liveTotal');
+            var pricePerNight = @hotel.price.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var discountPct = @(((ViewBag.DiscountPercent as int?) ?? 0));
+            var discountUntil = '@(ViewBag.DiscountUntil as string ?? "")';
+            function nightlyPrice() {
+                if (discountPct > 0 && (!discountUntil || checkInInput.value <= discountUntil))
+                    return Math.round(pricePerNight * (100 - discountPct) / 100);
+                return pricePerNight;
+            }
+
+            function recalc() {
+                if (!checkInInput.value || !checkOutInput.value) { liveTotal.textContent = '—'; return; }
+                var start = new Date(checkInInput.value);
+                var end = new Date(checkOutInput.value);
+                var nights = Math.round((end - start) / (1000 * 60 * 60 * 24));
+                if (nights <= 0) { liveTotal.textContent = '—'; return; }
+                var total = nights * nightlyPrice();
+                var isEn = document.documentElement.lang === 'en';
+                liveTotal.textContent = nights + (isEn ? ' nights \u2014 ' : ' \u0634\u0628 \u2014 ') + total.toLocaleString('en-US') + (isEn ? ' Toman' : ' \u062a\u0648\u0645\u0627\u0646');
+            }
+
+            if (checkInInput && checkOutInput) {
+                checkInInput.addEventListener('change', function () {
+                    if (checkOutInput.value && checkOutInput.value <= checkInInput.value) {
+                        var next = new Date(checkInInput.value);
+                        next.setDate(next.getDate() + 1);
+                        checkOutInput.value = next.toISOString().slice(0, 10);
+                    }
+                    checkOutInput.min = checkInInput.value;
+                    recalc();
+                });
+                checkOutInput.addEventListener('change', recalc);
+                recalc();
+            }
+        })();
+    </script>
+}

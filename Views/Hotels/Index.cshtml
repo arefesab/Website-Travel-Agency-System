@@ -1,0 +1,111 @@
+﻿@model IEnumerable<agancywebProject.Models.DB.Hotel>
+
+@{
+    ViewData["Title"] = Lang.T(Context, "لیست هتل‌ها", "Hotels");
+}
+
+<div class="page-container">
+    @if (TempData["AdminError"] is string adminError && !string.IsNullOrWhiteSpace(adminError))
+    {
+        <div class="alert alert-danger">@adminError</div>
+    }
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">@Lang.T(Context, "لیست هتل‌ها", "Hotels")</h1>
+        <a asp-action="Create" class="btn btn-brand">+ @Lang.T(Context, "هتل جدید", "New hotel")</a>
+    </div>
+    <div class="table-wrap">
+        <div class="table-responsive">
+            <table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Lang.T(Context, "نام هتل", "Hotel name")
+            </th>
+            <th>
+                @Lang.T(Context, "نام اتاق", "Room name")
+            </th>
+            <th>
+                @Lang.T(Context, "استان", "City")
+            </th>
+            <th>
+                @Lang.T(Context, "تاریخ خالی بودن از", "Available from")
+            </th>
+            <th>
+                @Lang.T(Context, "تاریخ خالی بودن تا", "Available until")
+            </th>
+            <th>
+                @Lang.T(Context, "قیمت (هر شب، تومان)", "Price (per night, Toman)")
+            </th>
+            <th class="col-address">
+                @Lang.T(Context, "آدرس", "Address")
+            </th>
+            <th>
+                @Lang.T(Context, "ستاره", "Stars")
+            </th>
+            <th>
+                @Lang.T(Context, "وعده غذایی", "Meals")
+            </th>
+            <th>
+                @Lang.T(Context, "وضعیت رزرو", "Booking status")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Lang.Fin(Context, item.name)
+            </td>
+            <td>
+                @Lang.Fin(Context, item.roomName)
+            </td>
+            <td>
+                @Lang.Fin(Context, item.city)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.startdate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.finishdate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.price)
+            </td>
+            <td class="col-address">
+                @Lang.Fin(Context, item.address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.star)
+            </td>
+            <td>
+                @Lang.Meal(Context, item.meal, item.MealDisplay)
+            </td>
+            <td>
+                @{
+                    var paidCounts = (Dictionary<int, int>)(ViewBag.PaidBookingCounts ?? new Dictionary<int, int>());
+                    var paidCount = paidCounts.ContainsKey(item.Hotel_Id) ? paidCounts[item.Hotel_Id] : 0;
+                }
+                @if (paidCount > 0)
+                {
+                    <a asp-action="Details" asp-route-id="@item.Hotel_Id" asp-fragment="bookings" class="status-pill status-pill-paid status-pill-link" title="@Lang.T(Context, "مشاهده لیست رزروها", "View bookings")">@paidCount @Lang.T(Context, "رزرو قطعی", "confirmed bookings")</a>
+                }
+                else
+                {
+                    <a asp-action="Details" asp-route-id="@item.Hotel_Id" asp-fragment="bookings" class="status-pill status-pill-pending status-pill-link" title="@Lang.T(Context, "مشاهده لیست رزروها", "View bookings")">@Lang.T(Context, "بدون رزرو", "No bookings")</a>
+                }
+            </td>
+            <td class="row-actions-cell">
+            <div class="row-actions">
+                <a asp-action="Edit" asp-route-id="@item.Hotel_Id">@Lang.T(Context, "ویرایش", "Edit")</a>
+                <a asp-action="Details" asp-route-id="@item.Hotel_Id">@Lang.T(Context, "جزئیات", "Details")</a>
+                <a asp-action="Delete" asp-route-id="@item.Hotel_Id">@Lang.T(Context, "حذف", "Delete")</a>
+            </div>
+        </td>
+        </tr>
+}
+    </tbody>
+</table>
+        </div>
+    </div>
+</div>

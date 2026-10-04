@@ -1,0 +1,36 @@
+@model agancywebProject.Models.DB.FlightBooking
+
+@{
+    ViewData["Title"] = Lang.T(Context, "حذف رزرو پرواز", "Delete flight booking");
+}
+
+<div class="page-container">
+    <div class="section-heading">
+        <h2>@Lang.T(Context, "حذف رزرو پرواز", "Delete flight booking")</h2>
+        <p>@Lang.T(Context, "آیا از حذف این رزرو مطمئن هستید؟ این کار قابل بازگشت نیست.", "Are you sure you want to delete this booking? This cannot be undone.")</p>
+    </div>
+    <div class="table-wrap admin-form-wrap">
+        @if (Model.Status == agancywebProject.Models.DB.BookingStatus.Paid)
+        {
+            <div class="alert alert-warning">@Lang.T(Context, "توجه: این رزرو پرداخت‌شده است. با حذف آن، صندلی‌های مربوطه دوباره آزاد می‌شوند.", "Note: this booking is paid. Deleting it frees the seats again.")</div>
+        }
+        <dl class="detail-list">
+            <dt>@Lang.T(Context, "پرواز", "Flight")</dt>
+            <dd>@Model.Flight?.Origin → @Model.Flight?.distination</dd>
+            <dt>@Lang.T(Context, "تاریخ", "Date")</dt>
+            <dd>@(Model.Flight?.startdate.ToString("yyyy-MM-dd"))</dd>
+            <dt>@Lang.T(Context, "مسافر", "Passenger")</dt>
+            <dd>@Model.FullName — @Model.PhoneNumber</dd>
+            <dt>@Lang.T(Context, "تعداد صندلی", "Seats")</dt>
+            <dd>@Model.SeatCount</dd>
+            <dt>@Lang.T(Context, "مبلغ کل (تومان)", "Total (Toman)")</dt>
+            <dd>@Model.TotalPrice.ToString("N0")</dd>
+        </dl>
+
+        <form asp-action="DeleteFlightConfirmed" class="admin-form-actions mt-3">
+            <input type="hidden" name="id" value="@Model.FlightBooking_Id" />
+            <input type="submit" value="@Lang.T(Context, "بله، حذف شود", "Yes, delete it")" class="btn btn-danger" formmethod="post" />
+            <a asp-action="Index" asp-route-type="flight" class="admin-back-link">→ @Lang.T(Context, "انصراف و بازگشت", "Cancel and go back")</a>
+        </form>
+    </div>
+</div>

@@ -169,28 +169,50 @@ It includes:
 
 ---
 
-## 🖼️ Screenshots
+## 📸 Screenshots
 
-> **Screenshots will be added here to showcase the real UI.**
->
-> Recommended screenshots:
->
-> 1. 🏠 **Homepage** — hero section + flight/hotel search + special offers
-> 2. ✈️ **Flight listing** — available flights and booking actions
-> 3. 🎫 **Flight reservation** — passenger and seat reservation form
-> 4. 🏨 **Hotel listing** — hotel cards, prices and discounts
-> 5. 🛏️ **Hotel details / booking** — room information and booking form
-> 6. 💳 **Payment flow** — payment / confirmation screen
-> 7. 🧑‍💼 **Admin dashboard** — management area
-> 8. 📋 **Admin bookings** — reservation management table
->
-> These screenshots can be placed under:
->
-> `docs/screenshots/`
->
-> and displayed in this section as a visual walkthrough.
+### 🏠 Homepage
+
+<p align="center">
+  <img src="./Screenshot%202026-10-04%20133202.png" alt="Travel Agency Homepage" width="900">
+</p>
+
+### ✈️ Flight Search
+
+<p align="center">
+  <img src="./Screenshot%202026-10-04%20133324.png" alt="Flight Search" width="900">
+</p>
+
+### 🏨 Hotel Experience
+
+<p align="center">
+  <img src="./Screenshot%202026-10-04%20133729.png" alt="Hotel Experience" width="900">
+</p>
+
+### 🎫 Booking Experience
+
+<p align="center">
+  <img src="./Screenshot%202026-10-04%20133823.png" alt="Booking Experience" width="900">
+</p>
+
+### 💳 Payment
+
+<p align="center">
+  <img src="./Screenshot%202026-10-04%20133929.png" alt="Payment" width="900">
+</p>
+
+### 🛠️ Admin Panel
+
+<p align="center">
+  <img src="./Screenshot%202026-10-04%20134015.png" alt="Admin Panel" width="900">
+</p>
 
 ---
+
+### 🌙 Responsive UI & Theme Support
+
+The project also includes a modern interface with theme support and RTL-friendly layouts, providing a comfortable experience across different sections of the application.
+
 
 ## 🧩 Architecture
 

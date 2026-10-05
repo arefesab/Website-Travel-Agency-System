@@ -1,285 +1,349 @@
-<p align="center">
-  <img src="docs/cover.svg" alt="Ofogh Air Agency" width="100%">
-</p>
+<div align="center">
 
-<p align="center">
-  <img src="https://img.shields.io/badge/.NET-6.0-512BD4?logo=dotnet&logoColor=white" alt=".NET 6">
-  <img src="https://img.shields.io/badge/ASP.NET%20Core-MVC-512BD4?logo=dotnet&logoColor=white" alt="ASP.NET Core MVC">
-  <img src="https://img.shields.io/badge/EF%20Core-6.0-512BD4" alt="EF Core 6">
-  <img src="https://img.shields.io/badge/SQL%20Server-CC2927?logo=microsoftsqlserver&logoColor=white" alt="SQL Server">
-  <img src="https://img.shields.io/badge/Bootstrap-5.1-7952B3?logo=bootstrap&logoColor=white" alt="Bootstrap 5">
-  <img src="https://img.shields.io/badge/JavaScript-ES6-F7DF1E?logo=javascript&logoColor=black" alt="JavaScript">
-  <img src="https://img.shields.io/badge/i18n-Persian%20(RTL)%20%2B%20English-0b7285" alt="Persian and English">
-  <a href="https://github.com/arefesab"><img src="https://img.shields.io/badge/GitHub-arefesab-181717?logo=github" alt="GitHub profile"></a>
-</p>
+# ✈️ Ofogh Air Agency
 
-**Ofogh Air Agency** is a full-stack travel-agency web application built with **ASP.NET Core 6 MVC**. Visitors search flights and hotel rooms, reserve them and pay online; the agency manages its whole catalogue and every booking from a protected admin panel. Key features include:
+### A complete travel-agency platform: search flights, book hotels, pay online, and manage everything from an admin panel.
 
-- 🔎 Flight and hotel search driven by **real availability** - already-booked seats and date ranges are excluded automatically.
-- 🔒 A **double-booking-safe** reservation flow: an atomic database lock, a 20-minute payment window and a pluggable payment gateway (Zarinpal or a built-in simulator).
-- 🏷️ A **dynamic pricing engine**: rooms that are free tomorrow get an automatic discount, and the admin can override it per room.
-- 🛠️ A complete **admin panel** for flights, hotels (with photo upload) and bookings.
-- 🌙 Persian (RTL) first, **English on demand**, light/dark theme and scroll animations that respect reduced-motion settings.
+<br>
 
-> **Note:** this is a demo project. Payments run through a **simulated gateway** by default (no real money moves), and the hotel names and photos are sample data used for demonstration only.
+![.NET 6](https://img.shields.io/badge/.NET-6.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![ASP.NET Core MVC](https://img.shields.io/badge/ASP.NET_Core-MVC-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
+![EF Core](https://img.shields.io/badge/EF_Core-6.0-512BD4?style=for-the-badge)
+![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)
+![Bootstrap 5](https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
+![Languages](https://img.shields.io/badge/UI-فارسی_%2F_English-1f6feb?style=for-the-badge)
+
+<br>
+
+<img src="./docs/gifs/home-tour.gif" alt="Ofogh Air Agency: home page tour" width="920">
+
+<br><br>
+
+[**Features**](#-features) · [**Live demos**](#-live-demos) · [**How it works**](#-how-it-works) · [**Quick start**](#-quick-start) · [**Payments**](#-payments) · [**Roadmap**](#-roadmap)
+
+</div>
 
 ---
 
-## 🖼️ Preview
+## 🌍 What is this?
 
-<p align="center">
-  <img src="docs/screenshots/home-hero.png" alt="Home page" width="100%">
-</p>
+**Ofogh Air Agency** is not just a travel-themed landing page. It is a working booking system. A visitor can find a flight or hotel, reserve it, pay for it, and the agency staff can manage every reservation from a protected admin area.
+
+The whole chain lives in one ASP.NET Core application:
+
+> **Browse → Select → Reserve → Pay → Verify → Confirmed**
+
+with real business rules behind it: seat capacity, double-booking protection, last-minute discounts, temporary booking locks, and payment verification.
 
 ---
 
 ## ✨ Features
 
-| 🏠 Home page<br>A landing page designed to turn visitors into bookings.<br><br>**Search widget**: switch between flights and hotels, one-way or round trip, with date pickers and passenger count.<br>**Departures board**: last-minute flights on an airport-style board; rows flip in as it scrolls into view and a chip shows the time left.<br>**Hot hotel deals**: discounted rooms as cards with a discount badge and a "days left" countdown; each hotel appears once, with its best-priced room.<br>**Destinations**: filterable destination cards (domestic / international) linking to eight landing pages (Kish, France, Turkey, Russia, Shiraz, Qeshm, Maldives, Kurdistan).<br>**Trust sections**: "Why Ofogh", traveller testimonials, FAQ and a floating WhatsApp button. | <img src="docs/screenshots/home-sections.png" alt="Home page sections" width="420"> |
-| :--- | :---: |
+<table>
+<tr>
+<td width="50%" valign="top">
 
-| ✈️ Flight search<br>Only routes the agency really flies are offered.<br><br>**Real routes only**: the origin and destination lists are built from the flights stored in the database, so a visitor can never pick a route that does not exist.<br>**Round trip**: searches the outbound flight and the matching return flight in one go.<br>**Seat-aware results**: capacity minus paid and currently-locked seats is checked against the number of passengers, and flights without enough seats are hidden.<br>**Validation**: past dates and a return date before the departure date are rejected with clear messages. | <img src="docs/screenshots/flight-search.png" alt="Flight search" width="420"> |
-| :--- | :---: |
+### ✈️ Flights
+- One-way or **round-trip** search by date
+- Return flights are shown only when they exist on the chosen return date
+- Ticket price, class, date and entry time
+- **Capacity enforcement:** a flight with 15 seats never sells the 16th
+- Passenger booking with mobile-number validation
+- Automatic total-price calculation
 
-| 🏨 Hotel search & details<br>Find a room that is genuinely free for the chosen nights.<br><br>**Availability-aware**: a room is listed only if the stay fits inside its open window and no paid (or actively locked) booking overlaps it.<br>**Photo carousel**: arrows, thumbnails, swipe, keyboard control and a click-to-enlarge lightbox, for hotel and room photos.<br>**Rich details**: amenities, meal plan, room name and capacity, address and star rating.<br>**Dynamic prices**: the price shown already includes any active discount. | <img src="docs/screenshots/hotel-details.png" alt="Hotel details" width="420"> |
-| :--- | :---: |
+</td>
+<td width="50%" valign="top">
 
-| 💳 Booking & payment<br>A guided flow from the first click to the receipt.<br><br>**Reserve → Preview → Pay → Result**, for both hotel rooms and flight seats (1-50 seats per booking).<br>**Booked-range awareness**: dates that are already taken are shown to the guest while choosing.<br>**Payment window**: when the guest clicks Pay the slot is locked for 20 minutes; if the payment never completes, the slot is released automatically.<br>**Gateways**: Zarinpal (sandbox or live) or a built-in **fake gateway** page to test the whole flow without a bank. Switch with one config key.<br>**Server-side checks**: the amount is verified with the gateway and the callback must match the stored authority. | <img src="docs/screenshots/booking-flow.png" alt="Booking flow" width="420"> |
-| :--- | :---: |
+### 🏨 Hotels
+- Search by **destination city, check-in/check-out dates and number of guests**
+- Every hotel shows its rooms with their own capacity and price
+- Star rating, meal plan, amenities, photo galleries
+- **No double booking:** a room reserved for a date range can't be reserved again
+- Automatic night count and total price
 
-| 🏷️ Dynamic pricing<br>Fill empty rooms without any manual work.<br><br>**Automatic last-minute discount**: a room that is open tomorrow and has no booking for that night gets **15% off** automatically, with a badge that says "Until tomorrow".<br>**Manual override**: the admin can set a discount per room (1-90%) that lasts until the room's end date, or `0` to switch discounts off for that room.<br>**Always consistent**: the same pricing rules drive the home page, the search results, the details page and the final invoice. | <img src="docs/screenshots/hot-deals.png" alt="Hot hotel deals" width="420"> |
-| :--- | :---: |
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
 
-| 🛠️ Admin panel<br>Everything the agency needs in one protected area.<br><br>**Secure login**: cookie authentication, anti-forgery tokens and PBKDF2-hashed passwords.<br>**Flights**: add, edit and delete flights with class, capacity, price and departure time.<br>**Hotels**: add rooms with multi-photo upload. Adding another room to an existing hotel **auto-fills** its description, amenities, address, stars and photos.<br>**Bookings**: one table for hotel and flight bookings with search by name or mobile, filters by type and status, colour-coded status pills, and quick edit/delete. | <img src="docs/screenshots/admin-dashboard.png" alt="Admin panel" width="420"> |
-| :--- | :---: |
+### ⚡ Last-minute deals
+- A flights board with departures **1–2 days away**, discounted, with instant booking
+- A hotels section with rooms **free in the next day or two**, also discounted
+- Hotel discounts can be set by the admin when the hotel is added, and show up on the deals board automatically
 
-| 🌍 Language, theme & motion<br>Built for Persian users, usable by everyone.<br><br>**Persian first (RTL)**: the whole interface is written in Persian with a right-to-left layout.<br>**English on demand**: one click switches to English through Google Website Translator and flips the layout to LTR; the choice is remembered in a cookie.<br>**Light / dark mode**: a theme toggle remembered between visits, with no flash of the wrong colours on load.<br>**Scroll animations**: sections and cards fade in as they enter the viewport (IntersectionObserver); everything is disabled for visitors who prefer reduced motion.<br>**Responsive**: designed for phones, tablets and desktops. | <img src="docs/screenshots/dark-mode.png" alt="Dark mode" width="420"> |
-| :--- | :---: |
+</td>
+<td width="50%" valign="top">
+
+### 💳 Payments
+- Clean `IPaymentGateway` abstraction
+- **ZarinPal** gateway: real request + verification flow
+- **Fake** gateway to test the entire flow with no bank account
+- Booking preview step before paying
+- Payment authority, reference and time stored per booking
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🛠️ Admin panel
+- Secure cookie-based login
+- Manage **flights**, **hotels** and **bookings** from separate sections
+- Create, edit, view and delete flights and hotels
+- **Protected data:** a flight or hotel with even one booking can't be deleted
+- Bookings are split into flight and hotel reservations, with a filter for successful / failed bookings
+- Admin can edit or remove a reservation
+- **Smart hotel form:** pick an existing hotel name and the province, stars, address and photos fill in automatically; or add a brand-new hotel with all its data
+
+</td>
+<td width="50%" valign="top">
+
+### 🎨 Experience
+- **Persian (RTL) and English (LTR)** with one-click switching
+- **Light theme** (white, orange, pink) and **dark theme** (black, purple), designed for every page
+- Scroll-reveal animations and responsive layouts
+- Domestic and international **tour** sections with regional descriptions
+- User reviews list plus a horizontal review slider
+- FAQ accordion and footer quick links
+- WhatsApp contact shortcut and back-to-top button
+
+</td>
+</tr>
+</table>
 
 ---
 
-## ⚙️ Tech Stack
+## 🎬 Live demos
 
-- **Backend:** C# 10, [ASP.NET Core 6 MVC](https://learn.microsoft.com/aspnet/core/mvc/overview) with Razor views
-- **Data:** [Entity Framework Core 6](https://learn.microsoft.com/ef/core/) (code-first migrations) on **SQL Server**
-- **Auth & security:** cookie authentication, anti-forgery tokens, PBKDF2-SHA256 password hashing
-- **Payments:** gateway abstraction (`IPaymentGateway`) with a Zarinpal implementation and a fake gateway for development
-- **Frontend:** Bootstrap 5, jQuery + unobtrusive validation, vanilla JavaScript (no frontend framework), custom CSS with design tokens for the light/dark themes
-- **Browser APIs:** IntersectionObserver for scroll effects, Fetch for photo upload
-- **i18n:** Persian (RTL) by default, English through Google Website Translator
+### ✈️ Flight search (round trip)
+<img src="./docs/gifs/flight-search.gif" alt="Round-trip flight search" width="860">
 
-## 🏛️ Architecture
+Pick the trip type and dates. For a round trip, the matching return flights appear too.
 
-A classic layered MVC application: controllers stay thin, business rules live in helpers and services, and EF Core is the single gateway to the database.
+### 🏨 Hotel search
+<img src="./docs/gifs/hotel-search.gif" alt="Hotel search by destination" width="860">
+
+Change the destination and the results update for that city, with rooms and prices for each hotel.
+
+### 🎫 Booking and payment
+<img src="./docs/gifs/booking-payment.gif" alt="Booking, preview and successful payment" width="860">
+
+Reserve, review the preview, pay, and land on a successful-payment page.
+
+### 🌐 Persian ↔ English
+<img src="./docs/gifs/theme-language.gif" alt="Switching between Persian (RTL) and English (LTR)" width="860">
+
+One click switches the whole interface between Persian (RTL) and English (LTR).
+
+### 🌗 Light and dark themes
+<img src="./docs/gifs/home-dark-mode.gif" alt="Dark mode" width="860">
+
+The dark theme (black and purple) is built for every page, not just the home page.
+
+### 🛠️ Admin panel
+
+<details open>
+<summary><b>Add a hotel with auto-filled details</b></summary>
+<br>
+<img src="./docs/gifs/admin-add-hotel.gif" alt="Admin adds a hotel" width="860">
+</details>
+
+<details>
+<summary><b>Manage bookings and filter by status</b></summary>
+<br>
+<img src="./docs/gifs/admin-bookings.gif" alt="Admin bookings" width="860">
+</details>
+
+<details>
+<summary><b>A hotel with a booking can't be deleted</b></summary>
+<br>
+<img src="./docs/gifs/admin-delete-protection.gif" alt="Delete protection" width="860">
+</details>
+
+---
+
+## 📸 Screenshots
+
+<table>
+<tr>
+<td width="50%" align="center">
+<img src="./docs/screenshots/home-light.png" alt="Home, light theme"><br>
+<b>☀️ Light theme</b>
+</td>
+<td width="50%" align="center">
+<img src="./docs/screenshots/home-dark.png" alt="Home, dark theme"><br>
+<b>🌙 Dark theme</b>
+</td>
+</tr>
+<tr>
+<td colspan="2" align="center">
+<img src="./docs/screenshots/admin.png" alt="Admin panel" width="640"><br>
+<b>🛠️ Admin panel</b>
+</td>
+</tr>
+</table>
+
+---
+
+## 🔄 How it works
+
+### Booking flow
 
 ```mermaid
 flowchart LR
-    B["Browser<br/>Razor views, Bootstrap 5, vanilla JS"]
-
-    subgraph WEB["ASP.NET Core 6 MVC"]
-        C["Controllers<br/>Home, Flightsshow, Hotelsshow,<br/>Booking, FlightBooking, Admin..."]
-        H["Helpers<br/>HotelPricing, FlightRoutes, Lang"]
-        S["Services<br/>PasswordHasher, DbSeeder,<br/>IPaymentGateway"]
-    end
-
-    D[("SQL Server<br/>EF Core 6")]
-    P{{"Zarinpal<br/>or fake gateway"}}
-
-    B --> C
-    C --> H
-    C --> S
-    C --> D
-    H --> D
-    S --> D
-    S --> P
+    A[Browse flights<br>or hotels] --> B[Select an option]
+    B --> C[Enter traveler<br>details]
+    C --> D{Seats / dates<br>available?}
+    D -- No --> B
+    D -- Yes --> E[Create booking<br>and lock it]
+    E --> F[Preview and pay]
+    F --> G{Payment<br>verified?}
+    G -- Yes --> H([✅ Confirmed])
+    G -- No --> I([❌ Failed / cancelled])
 ```
 
-### Data model
+### Booking states
 
-```mermaid
-erDiagram
-    HOTEL ||--o{ BOOKING : "reserved by"
-    FLIGHT ||--o{ FLIGHT_BOOKING : "reserved by"
-
-    HOTEL {
-        int Hotel_Id PK
-        string name
-        string city
-        string roomName
-        int roomCapacity
-        int price
-        int DiscountPercent "nullable: empty = automatic"
-        date startdate "open from"
-        date finishdate "open until"
-        int star
-        string meal
-    }
-    BOOKING {
-        int Booking_Id PK
-        int Hotel_Id FK
-        date CheckIn
-        date CheckOut
-        string FullName
-        string PhoneNumber
-        int Nights
-        int TotalPrice
-        int Status
-        string Authority "gateway reference"
-        datetime LockedAt
-    }
-    FLIGHT {
-        int Flight_Id PK
-        string Origin
-        string destination
-        date startdate
-        datetime entrytime
-        int price
-        int capacity
-        string flightClass
-    }
-    FLIGHT_BOOKING {
-        int FlightBooking_Id PK
-        int Flight_Id FK
-        int SeatCount
-        string FullName
-        string PhoneNumber
-        int TotalPrice
-        int Status
-        string Authority "gateway reference"
-        datetime LockedAt
-    }
-    USER_LOGIN {
-        int User_Id PK
-        string username
-        string password "PBKDF2 hash"
-    }
-```
-
-### Booking lifecycle
-
-A booking moves through a small state machine. The critical step is **Pending → Locked**, which is done in a single SQL `UPDATE ... WHERE NOT EXISTS (...)` so two guests can never lock overlapping dates at the same time.
+Every reservation moves through a clear lifecycle, with temporary locks that expire so seats and rooms are never held forever.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Pending: guest submits dates
-    Pending --> Locked: Pay (atomic lock)
-    Pending --> Cancelled: slot taken or guest cancels
-    Locked --> Paid: gateway verified
-    Locked --> Failed: payment failed or overlap at confirmation
+    [*] --> Pending
+    Pending --> Locked: seat / room held
+    Locked --> Paid: payment verified
+    Locked --> Cancelled: lock expired or user left
+    Locked --> Failed: payment rejected
     Paid --> [*]
-    note right of Locked
-        The lock expires after 20 minutes.
-        An expired lock no longer blocks the dates.
-    end note
 ```
+
+### Architecture
 
 ```mermaid
-sequenceDiagram
-    actor G as Guest
-    participant W as Booking controller
-    participant DB as SQL Server
-    participant PG as Payment gateway
-
-    G->>W: Reserve (dates, name, mobile)
-    W->>DB: Check overlap, save Pending booking
-    G->>W: Pay
-    W->>DB: Atomic UPDATE to Locked (only if no overlapping Paid or active Locked)
-    W->>PG: Request payment
-    PG-->>G: Redirect to gateway page
-    G->>PG: Pay or cancel
-    PG-->>W: Callback (authority, status)
-    W->>PG: Verify authority and amount
-    W->>DB: Mark Paid (or Failed)
-    W-->>G: Result page
+flowchart TB
+    UI["Browser<br>Razor views · Bootstrap 5 · jQuery"] --> C["Controllers<br>Home · Flights · Hotels · Booking · Admin"]
+    C --> DB["ApplicationDbContext<br>EF Core 6"]
+    C --> S["Services<br>Payment gateways · DbSeeder · PasswordHasher"]
+    S --> P{{"IPaymentGateway"}}
+    P --> Z["ZarinPal"]
+    P --> F["Fake (dev)"]
+    DB --> SQL[("SQL Server / LocalDB")]
 ```
-
-## 🔒 Security & Engineering Notes
-
-- **No double booking:** the lock is an atomic conditional `UPDATE`, not an in-memory check; payment-time and callback-time overlap checks protect against races.
-- **Passwords:** PBKDF2-SHA256, 100,000 iterations, 16-byte random salt, constant-time comparison. Legacy plain-text passwords are upgraded to hashes transparently on the first successful login.
-- **Request safety:** anti-forgery tokens on every POST, `[Authorize]` on all admin actions, parameterised SQL, and model validation with localised messages.
-- **Uploads:** extension allow-list (jpg, jpeg, png, webp, gif), random GUID file names and a request-size limit.
-- **Payment integrity:** the gateway callback must match the stored authority, and the paid amount is verified server-side before a booking is marked as paid.
-- **Integer-safe prices:** price maths uses 64-bit integers before rounding, so large room prices cannot overflow.
-- **Idempotent seeding:** on an empty database the app applies migrations, creates the admin account and loads sample data. Seed dates are stored as *day offsets*, so the sample flights and hotel windows are always in the future.
-- **Accessibility:** ARIA labels on controls and `prefers-reduced-motion` support.
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
-- SQL Server - the default connection string uses **LocalDB** (Windows, installed with Visual Studio). Any SQL Server / SQL Server Express instance works if you change the connection string.
-
-### Run locally
-
-```bash
-git clone https://github.com/arefesab/Website-Travel-Agency-System.git
-cd Website-Travel-Agency-System
-
-# Optional: choose the admin credentials (otherwise a random password is printed in the console on first run)
-dotnet user-secrets init
-dotnet user-secrets set "Seed:AdminUsername" "admin"
-dotnet user-secrets set "Seed:AdminPassword" "choose-a-strong-password"
-
-dotnet run
-```
-
-Open **https://localhost:7101**. On the first run against an empty database the app creates the schema, the admin user and the sample hotels and flights. The admin panel is at **`/Admin/Login`**.
-
-<details>
-<summary><b>⚙️ Configuration reference</b></summary>
-
-| Key | Default | Description |
-| --- | --- | --- |
-| `ConnectionStrings:DefaultConnectionString` | LocalDB `agancydb` | SQL Server connection string |
-| `Payment:Provider` | `Fake` | `Fake` = simulated gateway page, `Zarinpal` = real or sandbox gateway |
-| `Payment:Zarinpal:MerchantId` | empty | Your Zarinpal merchant ID (only for `Zarinpal`) |
-| `Payment:Zarinpal:Sandbox` | `true` | Use the Zarinpal sandbox endpoint |
-| `Seed:AdminUsername` | `admin` | Username of the admin created on a fresh database |
-| `Seed:AdminPassword` | random | Password of that admin; if empty, a random one is logged once |
-| `Seed:Force` | `false` | Also fill empty hotel/flight tables on a database that already has users |
-
-Keep real secrets (merchant ID, admin password) in `dotnet user-secrets` or environment variables, never in `appsettings.json`.
-
-</details>
-
-<details>
-<summary><b>📁 Project structure</b></summary>
-
-```
-agancywebProject/
-├── Controllers/      Public pages, booking flows, admin CRUD
-├── Models/DB/        EF Core entities: Hotel, Flight, Booking, FlightBooking, UserLogin
-├── Data/             ApplicationDbContext
-├── Migrations/       EF Core code-first migrations
-├── Services/         PasswordHasher, DbSeeder, Payment/ (IPaymentGateway, Zarinpal, Fake)
-├── Helpers/          HotelPricing (discount rules), FlightRoutes, Lang (i18n)
-├── Views/            Razor views and shared partials
-├── SeedData/         seed.json - sample hotels and flights (dates as day offsets)
-├── Program.cs        Service registration, authentication, startup seeding
-└── wwwroot/          css, js, lib, uploads/hotels
-```
-
-</details>
 
 ---
 
-## 📸 Gallery
+## 🛡️ Built-in business rules
 
-<table>
-  <tr>
-    <td><img src="docs/screenshots/departures-board.png" alt="Departures board"></td>
-    <td><img src="docs/screenshots/admin-bookings.png" alt="Admin bookings"></td>
-    <td><img src="docs/screenshots/mobile.png" alt="Mobile view"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Departures board</sub></td>
-    <td align="center"><sub>Booking management</sub></td>
-    <td align="center"><sub>Mobile layout</sub></td>
-  </tr>
-</table>
+| Area | Rule |
+|---|---|
+| Flights | Date can't be in the past · capacity and price must be positive |
+| Flights | Seats are counted per booking; a request beyond capacity is rejected |
+| Flights | Can't be deleted while bookings exist |
+| Hotels | Rating 1–5 · valid availability range · positive price and room capacity |
+| Hotels | Check-out must be after check-in · overlapping bookings are blocked |
+| Hotels | Can't be deleted while bookings exist |
+| Passengers | Mobile numbers and seat counts are validated server-side |
+| Bookings | Temporary locks expire automatically |
 
-## 👩‍💻 Author
+---
 
-Built by **[arefesab](https://github.com/arefesab)**.
+## 🚀 Quick start
+
+**Requirements:** [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) and SQL Server or SQL Server LocalDB.
+
+```bash
+# 1. Clone
+git clone https://github.com/arefesab/Website-Travel-Agency-System.git
+cd Website-Travel-Agency-System
+
+# 2. Restore packages
+dotnet restore
+
+# 3. Create the database
+dotnet ef database update
+
+# 4. Run
+dotnet run
+```
+
+Open the local URL printed in the terminal. On first run the database is **seeded automatically** with sample data, so you can start exploring right away.
+
+> The default connection string uses LocalDB: `(localdb)\MSSQLLocalDB`.
+> To use another server, edit `ConnectionStrings:DefaultConnectionString` in `appsettings.json`.
+
+---
+
+## 💳 Payments
+
+The project ships with the **Fake** gateway enabled, so you can test the full booking-and-payment flow without any bank credentials.
+
+```jsonc
+// appsettings.json (development)
+"Payment": {
+  "Provider": "Fake"
+}
+```
+
+To switch to ZarinPal:
+
+```jsonc
+"Payment": {
+  "Provider": "Zarinpal",
+  "Zarinpal": {
+    "MerchantId": "YOUR_MERCHANT_ID",
+    "Sandbox": true
+  }
+}
+```
+
+> ⚠️ Never commit a real merchant ID or any production secret to source control.
+
+---
+
+## 🧰 Tech stack
+
+| Layer | Technology |
+|---|---|
+| Backend | C# · .NET 6 · ASP.NET Core MVC |
+| Data | Entity Framework Core 6 · SQL Server / LocalDB · migrations + seeding |
+| Auth | Cookie authentication with hashed passwords |
+| Frontend | Razor · HTML5 · CSS3 · JavaScript · Bootstrap 5 · jQuery |
+| Integrations | ZarinPal · WhatsApp · Google Translate |
+
+---
+
+## 📁 Project structure
+
+```text
+├── Controllers/      Flights, Hotels, Booking, FlightBooking, Admin, AdminBookings, Home
+├── Models/DB/        Flight · Hotel · Booking · FlightBooking · UserLogin
+├── Services/         DbSeeder · PasswordHasher · Payment/ (IPaymentGateway, Fake, Zarinpal)
+├── Helpers/          Localization (Lang), flight routes, hotel pricing
+├── Data/             ApplicationDbContext
+├── Migrations/       EF Core migrations
+├── Views/            Razor views for every section + Shared layouts
+├── wwwroot/          css · js · lib · uploads
+└── docs/             gifs · screenshots used in this README
+```
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Unit and integration tests
+- [ ] CI/CD with GitHub Actions
+- [ ] Admin analytics dashboard
+- [ ] Email / SMS booking notifications
+- [ ] Customer accounts with booking history
+- [ ] Role-based authorization
+- [ ] Centralized logging
+- [ ] REST API for mobile clients
+
+---
+
+## 👤 Author
+
+**Aref Sab** · [@arefesab](https://github.com/arefesab)
+
+<div align="center">
+<sub>If you find this project useful, a ⭐ on the repo is appreciated.</sub>
+</div>

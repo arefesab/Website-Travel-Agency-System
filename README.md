@@ -15,11 +15,7 @@
 
 <br>
 
-<img src="./docs/gifs/home-tour.gif" alt="Ofogh Air Agency: home page tour" width="920">
-
-<br><br>
-
-[**Features**](#-features) · [**Live demos**](#-live-demos) · [**How it works**](#-how-it-works) · [**Quick start**](#-quick-start) · [**Payments**](#-payments) · [**Roadmap**](#-roadmap)
+<img src="./docs/screenshots/home-light.png" alt="Ofogh Air Agency home page" width="860">
 
 </div>
 
@@ -29,8 +25,6 @@
 
 **Ofogh Air Agency** is not just a travel-themed landing page. It is a working booking system. A visitor can find a flight or hotel, reserve it, pay for it, and the agency staff can manage every reservation from a protected admin area.
 
-The whole chain lives in one ASP.NET Core application:
-
 > **Browse → Select → Reserve → Pay → Verify → Confirmed**
 
 with real business rules behind it: seat capacity, double-booking protection, last-minute discounts, temporary booking locks, and payment verification.
@@ -39,149 +33,215 @@ with real business rules behind it: seat capacity, double-booking protection, la
 
 ## ✨ Features
 
+### 🏠 Home page
+
 <table>
 <tr>
-<td width="50%" valign="top">
+<td width="56%" valign="top">
 
-### ✈️ Flights
-- One-way or **round-trip** search by date
-- Return flights are shown only when they exist on the chosen return date
-- Ticket price, class, date and entry time
-- **Capacity enforcement:** a flight with 15 seats never sells the 16th
-- Passenger booking with mobile-number validation
-- Automatic total-price calculation
+A landing page designed to turn visitors into bookings.
 
-</td>
-<td width="50%" valign="top">
-
-### 🏨 Hotels
-- Search by **destination city, check-in/check-out dates and number of guests**
-- Every hotel shows its rooms with their own capacity and price
-- Star rating, meal plan, amenities, photo galleries
-- **No double booking:** a room reserved for a date range can't be reserved again
-- Automatic night count and total price
+<ul>
+<li><b>Search widget</b> for flights and hotels, with date pickers</li>
+<li><b>Last-minute flights board:</b> departures 1–2 days away, discounted, with instant booking</li>
+<li><b>Last-minute hotel deals:</b> rooms that are free in the next day or two, also discounted</li>
+<li><b>Domestic and international tours</b> with regional descriptions</li>
+<li><b>User reviews</b> list plus a horizontal review slider</li>
+<li><b>FAQ</b> accordion, footer quick links, WhatsApp shortcut</li>
+</ul>
 
 </td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### ⚡ Last-minute deals
-- A flights board with departures **1–2 days away**, discounted, with instant booking
-- A hotels section with rooms **free in the next day or two**, also discounted
-- Hotel discounts can be set by the admin when the hotel is added, and show up on the deals board automatically
-
-</td>
-<td width="50%" valign="top">
-
-### 💳 Payments
-- Clean `IPaymentGateway` abstraction
-- **ZarinPal** gateway: real request + verification flow
-- **Fake** gateway to test the entire flow with no bank account
-- Booking preview step before paying
-- Payment authority, reference and time stored per booking
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🛠️ Admin panel
-- Secure cookie-based login
-- Manage **flights**, **hotels** and **bookings** from separate sections
-- Create, edit, view and delete flights and hotels
-- **Protected data:** a flight or hotel with even one booking can't be deleted
-- Bookings are split into flight and hotel reservations, with a filter for successful / failed bookings
-- Admin can edit or remove a reservation
-- **Smart hotel form:** pick an existing hotel name and the province, stars, address and photos fill in automatically; or add a brand-new hotel with all its data
-
-</td>
-<td width="50%" valign="top">
-
-### 🎨 Experience
-- **Persian (RTL) and English (LTR)** with one-click switching
-- **Light theme** (white, orange, pink) and **dark theme** (black, purple), designed for every page
-- Scroll-reveal animations and responsive layouts
-- Domestic and international **tour** sections with regional descriptions
-- User reviews list plus a horizontal review slider
-- FAQ accordion and footer quick links
-- WhatsApp contact shortcut and back-to-top button
-
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/home-tour.gif" alt="Home page tour" width="380">
 </td>
 </tr>
 </table>
 
----
+### ✈️ Flight search
 
-## 🎬 Live demos
+<table>
+<tr>
+<td width="56%" valign="top">
 
-### ✈️ Flight search (round trip)
-<img src="./docs/gifs/flight-search.gif" alt="Round-trip flight search" width="860">
+Find flights by date, one-way or round trip.
 
-Pick the trip type and dates. For a round trip, the matching return flights appear too.
+<ul>
+<li>Pick one or two dates; for a round trip, <b>return flights are shown only if they exist on the return date</b></li>
+<li>Ticket price, class, date and entry time on every result</li>
+<li><b>Capacity enforcement:</b> a flight with 15 seats never sells the 16th ticket</li>
+<li>Passenger booking with mobile-number validation and automatic total price</li>
+</ul>
+
+</td>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/flight-search.gif" alt="Round-trip flight search" width="380">
+</td>
+</tr>
+</table>
 
 ### 🏨 Hotel search
-<img src="./docs/gifs/hotel-search.gif" alt="Hotel search by destination" width="860">
-
-Change the destination and the results update for that city, with rooms and prices for each hotel.
-
-### 🎫 Booking and payment
-<img src="./docs/gifs/booking-payment.gif" alt="Booking, preview and successful payment" width="860">
-
-Reserve, review the preview, pay, and land on a successful-payment page.
-
-### 🌐 Persian ↔ English
-<img src="./docs/gifs/theme-language.gif" alt="Switching between Persian (RTL) and English (LTR)" width="860">
-
-One click switches the whole interface between Persian (RTL) and English (LTR).
-
-### 🌗 Light and dark themes
-<img src="./docs/gifs/home-dark-mode.gif" alt="Dark mode" width="860">
-
-The dark theme (black and purple) is built for every page, not just the home page.
-
-### 🛠️ Admin panel
-
-<details open>
-<summary><b>Add a hotel with auto-filled details</b></summary>
-<br>
-<img src="./docs/gifs/admin-add-hotel.gif" alt="Admin adds a hotel" width="860">
-</details>
-
-<details>
-<summary><b>Manage bookings and filter by status</b></summary>
-<br>
-<img src="./docs/gifs/admin-bookings.gif" alt="Admin bookings" width="860">
-</details>
-
-<details>
-<summary><b>A hotel with a booking can't be deleted</b></summary>
-<br>
-<img src="./docs/gifs/admin-delete-protection.gif" alt="Delete protection" width="860">
-</details>
-
----
-
-## 📸 Screenshots
 
 <table>
 <tr>
-<td width="50%" align="center">
-<img src="./docs/screenshots/home-light.png" alt="Home, light theme"><br>
-<b>☀️ Light theme</b>
+<td width="56%" valign="top">
+
+Search by destination, dates and number of guests.
+
+<ul>
+<li>Every hotel lists its rooms, each with its own capacity and price</li>
+<li>Star rating, meal plan, amenities and photo galleries</li>
+<li><b>No double booking:</b> a room reserved for a date range can't be reserved again</li>
+<li>Changing the destination updates the results for that city</li>
+<li>Automatic night count and total price</li>
+</ul>
+
 </td>
-<td width="50%" align="center">
-<img src="./docs/screenshots/home-dark.png" alt="Home, dark theme"><br>
-<b>🌙 Dark theme</b>
-</td>
-</tr>
-<tr>
-<td colspan="2" align="center">
-<img src="./docs/screenshots/admin.png" alt="Admin panel" width="640"><br>
-<b>🛠️ Admin panel</b>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/hotel-search.gif" alt="Hotel search by destination" width="380">
 </td>
 </tr>
 </table>
+
+### 💳 Booking and payment
+
+<table>
+<tr>
+<td width="56%" valign="top">
+
+From reservation to a confirmed payment.
+
+<ul>
+<li>Enter traveler details, review a <b>preview</b>, then pay</li>
+<li>Built on an <code>IPaymentGateway</code> abstraction</li>
+<li><b>ZarinPal</b> gateway with real request + verification flow</li>
+<li><b>Fake</b> gateway to test the whole flow without a bank account</li>
+<li>Payment authority, reference and time are stored per booking</li>
+</ul>
+
+</td>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/booking-payment.gif" alt="Booking, preview and successful payment" width="380">
+</td>
+</tr>
+</table>
+
+### 🌐 Persian and English
+
+<table>
+<tr>
+<td width="56%" valign="top">
+
+The whole interface switches language in one click.
+
+<ul>
+<li><b>Persian (RTL)</b> and <b>English (LTR)</b> layouts</li>
+<li>Localized validation messages</li>
+<li>Separate RTL / LTR Bootstrap handling</li>
+</ul>
+
+</td>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/theme-language.gif" alt="Switching between Persian and English" width="380">
+</td>
+</tr>
+</table>
+
+### 🌗 Light and dark themes
+
+<table>
+<tr>
+<td width="56%" valign="top">
+
+Two complete themes, designed for every page.
+
+<ul>
+<li><b>Light:</b> white, orange and pink</li>
+<li><b>Dark:</b> black and purple</li>
+<li>Scroll-reveal animations and responsive layouts</li>
+</ul>
+
+</td>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/home-dark-mode.gif" alt="Dark mode" width="380">
+</td>
+</tr>
+</table>
+
+---
+
+## 🛠️ Admin panel
+
+A protected area (cookie login) with three sections: **flights**, **hotels** and **bookings**.
+
+### 🏨 Add a hotel
+
+<table>
+<tr>
+<td width="56%" valign="top">
+
+A smart form that saves the admin's time.
+
+<ul>
+<li>Start typing a hotel name and existing hotels are suggested</li>
+<li>Pick one and <b>province, stars, address and hotel photos fill in automatically</b>. You only add the dates and the room's own data</li>
+<li>Hotel not in the list? Choose <b>Add new hotel</b> and enter everything yourself</li>
+<li>Set a <b>discount</b> while adding; it appears automatically on the home page's hotel deals and can be booked at that price</li>
+</ul>
+
+</td>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/admin-add-hotel.gif" alt="Admin adds a hotel" width="380">
+</td>
+</tr>
+</table>
+
+### 📋 Manage bookings
+
+<table>
+<tr>
+<td width="56%" valign="top">
+
+Every reservation in one place.
+
+<ul>
+<li>Bookings are <b>split into flights and hotels</b></li>
+<li>A dropdown filters by <b>successful</b>, <b>failed</b> or all bookings</li>
+<li>The admin can open, edit or delete a reservation</li>
+<li>Flights and hotels can be created, viewed, edited and deleted</li>
+</ul>
+
+</td>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/admin-bookings.gif" alt="Admin bookings with status filter" width="380">
+</td>
+</tr>
+</table>
+
+### 🛡️ Delete protection
+
+<table>
+<tr>
+<td width="56%" valign="top">
+
+Data with real bookings can't be removed by accident.
+
+<ul>
+<li>A <b>flight</b> with even one booking can't be deleted</li>
+<li>A <b>hotel</b> with a booking can't be deleted</li>
+<li>Reservations themselves can still be edited or removed by the admin</li>
+</ul>
+
+</td>
+<td width="44%" align="center" valign="middle">
+<img src="./docs/gifs/admin-delete-protection.gif" alt="A booked hotel can't be deleted" width="380">
+</td>
+</tr>
+</table>
+
+<div align="center">
+<img src="./docs/screenshots/admin.png" alt="Admin panel" width="640"><br>
+<sub>The admin panel</sub>
+</div>
 
 ---
 

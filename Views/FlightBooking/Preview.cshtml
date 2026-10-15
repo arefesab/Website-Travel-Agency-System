@@ -94,5 +94,7 @@
             </form>
         </div>
         <p class="form-text-hint mt-2">@Lang.T(Context, "با کلیک روی «پرداخت و تایید نهایی» به درگاه پرداخت بانکی منتقل می‌شوید. تا زمانی که پرداخت را تکمیل نکنید، این صندلی‌ها قطعی نمی‌شوند.", "Clicking &quot;Pay &amp; confirm&quot; will take you to the payment gateway. These seats are not confirmed until payment is completed.")</p>
+        @{ var lockMinutes = (int)agancywebProject.Models.DB.BookingRules.LockTimeout.TotalMinutes; }
+        <p class="form-text-hint mt-1">@Lang.T(Context, $"پس از ورود به درگاه، {lockMinutes} دقیقه فرصت پرداخت دارید؛ بعد از آن رزرو آزاد می‌شود.", $"After you reach the gateway you have {lockMinutes} minutes to pay; after that the booking is released.")</p>
     </div>
 </div>

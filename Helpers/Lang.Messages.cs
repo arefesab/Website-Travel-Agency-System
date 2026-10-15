@@ -137,6 +137,7 @@ namespace agancywebProject.Helpers
 
             ["اتصال به درگاه پرداخت برقرار نشد."] = "Could not connect to the payment gateway.",
             ["پرداخت توسط شما لغو شد."] = "The payment was cancelled.",
+            ["زمان پرداخت شما تمام شد و رزرو آزاد شد. لطفا دوباره تلاش کنید."] = "Your payment time ran out and the booking was released. Please try again.",
             ["پرداخت تایید نشد."] = "The payment could not be verified.",
             ["ارتباط با درگاه پرداخت برقرار نشد."] = "Could not connect to the payment gateway.",
             ["ارتباط با درگاه پرداخت برای تایید تراکنش برقرار نشد."] = "Could not reach the payment gateway to verify the transaction.",

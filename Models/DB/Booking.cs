@@ -72,6 +72,9 @@ namespace agancywebProject.Models.DB
         public DateTime? LockedAt { get; set; }
 
         [NotMapped]
+        public int LockSecondsRemaining => BookingRules.SecondsRemaining(LockedAt);
+
+        [NotMapped]
         public bool IsLockExpired =>
             Status == BookingStatus.Locked && (LockedAt == null || LockedAt.Value < BookingRules.LockCutoff());
 

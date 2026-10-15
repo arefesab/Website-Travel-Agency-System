@@ -3,6 +3,7 @@
     var hotel = Model.Hotel!;
     ViewData["Title"] = Lang.T(Context, "درگاه پرداخت (آزمایشی)", "Payment Gateway (Test)");
     Layout = null;
+    var remainingSeconds = Model.LockSecondsRemaining;
 }
 <!DOCTYPE html>
 <html lang="@(Lang.IsTranslated(Context) ? "en" : "fa")" dir="@(Lang.IsTranslated(Context) ? "ltr" : "rtl")">
@@ -23,6 +24,14 @@
     {
         <link rel="stylesheet" href="~/css/site-ltr.css" asp-append-version="true" />
     }
+    <style>
+        .hold-timer { display:flex; align-items:center; justify-content:center; gap:.5rem; margin:0 0 1rem; padding:.55rem .75rem; border-radius:.6rem; background:rgba(0,0,0,.05); font-size:.95rem; }
+        .hold-timer strong { font-size:1.25rem; font-variant-numeric:tabular-nums; letter-spacing:.04em; }
+        .hold-timer.is-warning { background:rgba(192,57,43,.12); color:#c0392b; }
+        .hold-expired { margin:0 0 1rem; padding:.75rem; border-radius:.6rem; background:rgba(192,57,43,.12); color:#c0392b; text-align:center; }
+        .hold-timer[hidden], .hold-expired[hidden] { display:none; }
+        .hold-expired a { display:block; margin-top:.4rem; font-weight:600; }
+    </style>
 </head>
 <body>
     <div class="page-container" style="max-width:480px;">
@@ -44,9 +53,18 @@
                 <dd><strong class="booking-total">@Model.TotalPrice.ToString("N0") @Lang.T(Context, "تومان", "Toman")</strong></dd>
             </dl>
 
-            <form asp-controller="Booking" asp-action="FakeGatewayConfirm" method="post" class="d-grid gap-2">
+            <div id="hold-timer" class="hold-timer" role="timer">
+                <span>@Lang.T(Context, "زمان باقی‌مانده برای پرداخت:", "Time left to pay:")</span>
+                <strong id="hold-timer-text" class="notranslate" translate="no" dir="ltr">--:--</strong>
+            </div>
+            <div id="hold-expired" class="hold-expired" role="alert" hidden>
+                @Lang.T(Context, "زمان پرداخت شما تمام شد و رزرو آزاد شد.", "Your payment time ran out and the booking was released.")
+                <a asp-controller="Booking" asp-action="Reserve" asp-route-id="@hotel.Hotel_Id">@Lang.T(Context, "رزرو دوباره", "Book again")</a>
+            </div>
+
+            <form asp-controller="Booking" asp-action="FakeGatewayConfirm" id="gateway-form" method="post" class="d-grid gap-2">
                 <input type="hidden" name="authority" value="@Model.Authority" />
-                <button type="submit" name="approved" value="true" class="btn btn-brand w-100">@Lang.T(Context, "پرداخت موفق (شبیه‌سازی)", "Successful payment (simulated)")</button>
+                <button type="submit" id="pay-btn" name="approved" value="true" class="btn btn-brand w-100">@Lang.T(Context, "پرداخت موفق (شبیه‌سازی)", "Successful payment (simulated)")</button>
                 <button type="submit" name="approved" value="false" class="btn btn-outline-secondary w-100">@Lang.T(Context, "انصراف از پرداخت", "Cancel payment")</button>
             </form>
         </div>
@@ -55,5 +73,36 @@
     {
         <partial name="_GoogleTranslate" />
     }
+    <script>
+        (function () {
+            // Seconds left come from the server; the deadline is measured on this device's own clock,
+            // so a wrong clock on the visitor's device cannot shift the timer.
+            var remaining = @remainingSeconds;
+            var deadline = Date.now() + remaining * 1000;
+            var timerBox = document.getElementById('hold-timer');
+            var timerText = document.getElementById('hold-timer-text');
+            var expiredBox = document.getElementById('hold-expired');
+            var payBtn = document.getElementById('pay-btn');
+            var id = null;
+
+            function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+            function tick() {
+                var left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+                if (left <= 0) {
+                    if (id) clearInterval(id);
+                    timerBox.hidden = true;
+                    expiredBox.hidden = false;
+                    if (payBtn) payBtn.disabled = true;
+                    return;
+                }
+                timerText.textContent = pad(Math.floor(left / 60)) + ':' + pad(left % 60);
+                timerBox.classList.toggle('is-warning', left <= 60);
+            }
+
+            tick();
+            id = setInterval(tick, 1000);
+        })();
+    </script>
 </body>
 </html>

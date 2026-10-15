@@ -113,14 +113,15 @@ From reservation to a confirmed payment.
 <ul>
 <li>Enter traveler details, review a <b>preview</b>, then pay</li>
 <li>Built on an <code>IPaymentGateway</code> abstraction</li>
-<li><b>ZarinPal</b> gateway with real request + verification flow</li>
+<li><b>ZarinPal</b> gateway (request + verification, sandbox by default)</li>
 <li><b>Fake</b> gateway to test the whole flow without a bank account</li>
+<li>Temporary booking locks (10 minutes) with a countdown on the payment page and server-side expiry check</li>
 <li>Payment authority, reference and time are stored per booking</li>
 </ul>
 
 </td>
 <td width="44%" align="center" valign="middle">
-<img src="./docs/gifs/booking-payment.gif" alt="Booking, preview and successful payment" width="380">
+<img src="./docs/gifs/booking-payment2.gif" alt="Booking, preview and successful payment" width="380">
 </td>
 </tr>
 </table>

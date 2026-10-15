@@ -258,6 +258,11 @@ AND NOT EXISTS (
                 return RedirectToAction(nameof(Result), new { id = booking.Booking_Id });
             }
 
+            if (booking.IsLockExpired)
+            {
+                return await ExpireLockAsync(booking);
+            }
+
             return View(booking);
         }
 
@@ -277,6 +282,12 @@ AND NOT EXISTS (
             if (booking.Status != BookingStatus.Locked)
             {
                 return RedirectToAction(nameof(Result), new { id = booking.Booking_Id });
+            }
+
+            // Server-side check: the browser timer is only a hint, this is the real enforcement.
+            if (booking.IsLockExpired)
+            {
+                return await ExpireLockAsync(booking);
             }
 
             if (approved)
@@ -322,6 +333,15 @@ AND NOT EXISTS (
 
             ViewBag.Error = TempData["BookingError"];
             return View(booking);
+        }
+
+        // The payment time ran out: free the held room/seats and tell the user.
+        private async Task<IActionResult> ExpireLockAsync(Booking booking)
+        {
+            booking.Status = BookingStatus.Failed;
+            await _context.SaveChangesAsync();
+            TempData["BookingError"] = Lang.Msg(HttpContext, "زمان پرداخت شما تمام شد و رزرو آزاد شد. لطفا دوباره تلاش کنید.");
+            return RedirectToAction(nameof(Result), new { id = booking.Booking_Id });
         }
 
         private async Task MarkPaidAsync(Booking booking, string? refId)

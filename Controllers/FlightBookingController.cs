@@ -262,6 +262,11 @@ AND (
                 return RedirectToAction(nameof(Result), new { id = booking.FlightBooking_Id });
             }
 
+            if (booking.IsLockExpired)
+            {
+                return await ExpireLockAsync(booking);
+            }
+
             return View(booking);
         }
 
@@ -281,6 +286,12 @@ AND (
             if (booking.Status != BookingStatus.Locked)
             {
                 return RedirectToAction(nameof(Result), new { id = booking.FlightBooking_Id });
+            }
+
+            // Server-side check: the browser timer is only a hint, this is the real enforcement.
+            if (booking.IsLockExpired)
+            {
+                return await ExpireLockAsync(booking);
             }
 
             if (approved)
@@ -326,6 +337,15 @@ AND (
 
             ViewBag.Error = TempData["FlightBookingError"];
             return View(booking);
+        }
+
+        // The payment time ran out: free the held room/seats and tell the user.
+        private async Task<IActionResult> ExpireLockAsync(FlightBooking booking)
+        {
+            booking.Status = BookingStatus.Failed;
+            await _context.SaveChangesAsync();
+            TempData["FlightBookingError"] = Lang.Msg(HttpContext, "زمان پرداخت شما تمام شد و رزرو آزاد شد. لطفا دوباره تلاش کنید.");
+            return RedirectToAction(nameof(Result), new { id = booking.FlightBooking_Id });
         }
 
         private async Task MarkPaidAsync(FlightBooking booking, string? refId)
